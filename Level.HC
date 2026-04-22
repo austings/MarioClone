@@ -67,7 +67,7 @@ Level *LoadLevel(U8 *path)
 
  while(ln = ReadALine(&lnptr))
  {
-  if(*ln == 0){
+  if(*ln == 0){
    goto next;
   }
 
@@ -76,7 +76,7 @@ Level *LoadLevel(U8 *path)
    U8 tag[8], w[8], h[8];
    U8 *tptr=tag,*wptr=w,*hptr=h;
 
-   StrScan(ln,"%s %s %s",&tptr,&wptr,&hptr);
+   StrScan(ln,"%s %s %s",&tptr,&wptr,&hptr);
 
    lvl->w = Str2I64(wptr);
    lvl->h = Str2I64(hptr);

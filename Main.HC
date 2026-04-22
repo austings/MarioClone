@@ -26,7 +26,7 @@ U0 UpdateMario()
  else{
   if(mario.vx > 0){
    mario.vx -= FRICTION;
-   if(mario.vx < 0) mario.vx = 0;
+   if(mario.vx < 0) mario.vx = 0;
   }
   else if(mario.vx < 0){
    mario.vx += FRICTION;
@@ -55,14 +55,32 @@ U0 UpdateMario()
  // --- Apply movement ---
  mario.x += mario.vx;
 
- mario.y += mario.vy;
 
  // --- vertical collision ---
  I64 left   = WorldToTile(mario.x);
  I64 right  = WorldToTile(mario.x + 31);
  I64 top    = WorldToTile(mario.y);
  I64 bottom = WorldToTile(mario.y + 31);
+ // moving right
+ if(mario.vx > 0){
+  if(IsSolidTile(right, top) || IsSolidTile(right, bottom)){
+   mario.x = right * TILE_SIZE - 32;
+   mario.vx = 0;
+  }
+ }
+ // moving left
+ else if(mario.vx < 0){
+  if(IsSolidTile(left, top) || IsSolidTile(left, bottom)){
+   mario.x = (left + 1) * TILE_SIZE;
+   mario.vx = 0;
+  }
+ }
+ mario.y += mario.vy;
 
+ left   = WorldToTile(mario.x);
+ right  = WorldToTile(mario.x + 31);
+ top    = WorldToTile(mario.y);
+ bottom = WorldToTile(mario.y + 31);
  // falling
  if(mario.vy > 0){
   if(IsSolidTile(left, bottom) || IsSolidTile(right, bottom)){
@@ -163,7 +181,7 @@ CDC* GetMarioSprite()
 U0 DrawMarioGame(CTask *task, CDC *dc)
 {
  I64 x, y;
-
+
  // --- Background ---
  GrBlot3(dc,0,64,0,SPRITEBG);
 
