@@ -1,69 +1,6 @@
 #include "Wad.HC";
-
-static CDC* ONEL= FramePtr("1L");
-static CDC* TWOL= FramePtr("2L");
-static CDC* THREEL= FramePtr("3L");
-static CDC* FOURL= FramePtr("4L");
-static CDC* FIVEL= FramePtr("5R");
-static CDC* SIXL= FramePtr("6L");
-static CDC* ONER= FramePtr("1R");
-static CDC* TWOR= FramePtr("2R");
-static CDC* THREER= FramePtr("3R");
-static CDC* FOURR= FramePtr("4R");
-static CDC* FIVER= FramePtr("5L");
-static CDC* SIXR= FramePtr("6R");
-static CDC* FLOOR1= FramePtr("FLOOR1");
-static CDC* SPRITEBG= FramePtr("SPRITEBG");
-
-// Direction
-#define DIR_L 0
-#define DIR_R 1
-
-// States
-#define ST_IDLE  0
-#define ST_WALK  1
-#define ST_TURN  2
-#define ST_JUMP  3
-#define ST_FALL  4
-
-#define JUMP_BUFFER_FRAMES 6
-#define GRAVITY 1
-#define MAX_FALL 10
-#define JUMP_VEL -12
-
-#define ACCEL       1
-#define FRICTION    1
-#define MAX_SPEED   6
-#define TURN_ACCEL  1   // lower = longer skid
-#define TURN_TIME   8
-class Mario{
- I64 x, y;
- I64 vx, vy;
- U8 dir;
- U8 state;
- I64 frame;
- I64 animTimer;
- I64 turnTimer;
- U8 turnDir;
-} mario;
-
-U8 keyL, keyR, keyJump;
-I64 jumpBuffer = 0;
-I64 grounded = 0;
-U8 jumpHeld = 0;
-
-U0 InitMario()
-{
- mario.x = 100;
- mario.y = 378;
- mario.vx = 0;
- mario.vy = 0;
- mario.dir = DIR_R;
- mario.state = ST_IDLE;
- mario.frame = 0;
- mario.animTimer = 0;
- mario.turnTimer = 0;
-}
+#include "Globals.HC";
+#include "Level.HC";
 
 U0 UpdateMario()
 {
@@ -105,7 +42,6 @@ U0 UpdateMario()
 
  if(jumpBuffer > 0) jumpBuffer--;
 
- grounded = (mario.y >= 378);
 
  if(jumpBuffer > 0 && grounded){
   mario.vy = JUMP_VEL;
@@ -118,16 +54,35 @@ U0 UpdateMario()
 
  // --- Apply movement ---
  mario.x += mario.vx;
+
  mario.y += mario.vy;
 
- // --- Floor ---
- if(mario.y >= 378){
-  mario.y = 378;
-  mario.vy = 0;
+ // --- vertical collision ---
+ I64 left   = WorldToTile(mario.x);
+ I64 right  = WorldToTile(mario.x + 31);
+ I64 top    = WorldToTile(mario.y);
+ I64 bottom = WorldToTile(mario.y + 31);
+
+ // falling
+ if(mario.vy > 0){
+  if(IsSolidTile(left, bottom) || IsSolidTile(right, bottom)){
+   mario.y = bottom * TILE_SIZE - 32;
+   mario.vy = 0;
+  }
+ }
+ // jumping
+ else if(mario.vy < 0){
+  if(IsSolidTile(left, top) || IsSolidTile(right, top)){
+   mario.y = (top + 1) * TILE_SIZE;
+   mario.vy = 0;
+  }
  }
 
- grounded = (mario.y >= 378);
-
+ //recompute AFTER correction
+ bottom = WorldToTile(mario.y + 31);
+ grounded =
+ IsSolidTile(left,  WorldToTile(mario.y + 32)) ||
+ IsSolidTile(right, WorldToTile(mario.y + 32));
  // --- Direction follows velocity ---
  if(mario.vx < 0) mario.dir = DIR_L;
  if(mario.vx > 0) mario.dir = DIR_R;
@@ -205,16 +160,22 @@ CDC* GetMarioSprite()
 
  return ONER;
 }
-
 U0 DrawMarioGame(CTask *task, CDC *dc)
 {
- I64 i;
+ I64 x, y;
+
  // --- Background ---
- GrBlot3(dc,0,60,0,SPRITEBG);
- for(i=0;i<640;i+=32){
-  GrBlot3(dc,i,408,0,FLOOR1);
-  GrBlot3(dc,i,440,0,FLOOR1);
+ GrBlot3(dc,0,64,0,SPRITEBG);
 
+ // --- Draw level tiles ---
+ for(y = 0; y < clvl->h; y++){
+  for(x = 0; x < clvl->w; x++){
+
+   if(clvl->tiles[y * clvl->w + x] == 1){
+    GrBlot3(dc, x * 32, y * 32, 0, FLOOR1);
+   }
+
+  }
  }
 
  UpdateMario();
@@ -222,6 +183,7 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
  CDC* spr = GetMarioSprite();
  GrBlot3(dc,mario.x,mario.y,0,spr);
 }
+
 
 U0 SongTask()
 {
@@ -235,11 +197,12 @@ U0 SongTask()
   Play("e5EGAFGECD4Brr");
   Play("5ettGF#F..D#E4A#A5C4A5ttCD..rr");
   Play("5ttGF#F..D#EGrGG");
-  Play("5ettGF#F..D#E4A#A5C4A5ttCD..rr");
+  Play("5ettGF#F..D#E4A#A5C4A5ttCD..rr");
   Play("5D#DC");
  }
 
 }
+U8 *WORLD_FILE = MStrPrint("%s%s",DirCur,"/Levels/World1-1.TXT");
 
 U0 MarioMain()
 {
@@ -251,7 +214,7 @@ U0 MarioMain()
  DocCursor; DocClear;
 
  InitMario();
-
+ clvl = LoadLevel(WORLD_FILE);
  Fs->draw_it = &DrawMarioGame;
  Fs->song_task=Spawn(&SongTask,Fs);
 
