@@ -1,139 +1,7 @@
 #include "Wad.HC";
 #include "Globals.HC";
 #include "Level.HC";
-
-U0 UpdateMario()
-{
- // --- Horizontal movement ---
- if(keyL){
-  if(mario.vx > 0)
-   mario.vx -= TURN_ACCEL;
-  else
-   mario.vx -= ACCEL;
-
-  if(mario.vx < -MAX_SPEED)
-   mario.vx = -MAX_SPEED;
- }
- else if(keyR){
-  if(mario.vx < 0)
-   mario.vx += TURN_ACCEL;
-  else
-   mario.vx += ACCEL;
-
-  if(mario.vx > MAX_SPEED)
-   mario.vx = MAX_SPEED;
- }
- else{
-  if(mario.vx > 0){
-   mario.vx -= FRICTION;
-   if(mario.vx < 0) mario.vx = 0;
-  }
-  else if(mario.vx < 0){
-   mario.vx += FRICTION;
-   if(mario.vx > 0) mario.vx = 0;
-  }
- }
-
- // --- Jump buffer ---
- if(keyJump && !jumpHeld){
-  jumpBuffer = JUMP_BUFFER_FRAMES;
- }
- jumpHeld = keyJump;
-
- if(jumpBuffer > 0) jumpBuffer--;
-
-
- if(jumpBuffer > 0 && grounded){
-  mario.vy = JUMP_VEL;
-  jumpBuffer = 0;
- }
-
- // --- Gravity ---
- mario.vy += GRAVITY;
- if(mario.vy > MAX_FALL) mario.vy = MAX_FALL;
-
- // --- Apply movement ---
- mario.x += mario.vx;
-
-
- // --- vertical collision ---
- I64 left   = WorldToTile(mario.x);
- I64 right  = WorldToTile(mario.x + 31);
- I64 top    = WorldToTile(mario.y);
- I64 bottom = WorldToTile(mario.y + 31);
- // moving right
- if(mario.vx > 0){
-  if(IsSolidTile(right, top) || IsSolidTile(right, bottom)){
-   mario.x = right * TILE_SIZE - 32;
-   mario.vx = 0;
-  }
- }
- // moving left
- else if(mario.vx < 0){
-  if(IsSolidTile(left, top) || IsSolidTile(left, bottom)){
-   mario.x = (left + 1) * TILE_SIZE;
-   mario.vx = 0;
-  }
- }
- mario.y += mario.vy;
-
- left   = WorldToTile(mario.x);
- right  = WorldToTile(mario.x + 31);
- top    = WorldToTile(mario.y);
- bottom = WorldToTile(mario.y + 31);
- // falling
- if(mario.vy > 0){
-  if(IsSolidTile(left, bottom) || IsSolidTile(right, bottom)){
-   mario.y = bottom * TILE_SIZE - 32;
-   mario.vy = 0;
-  }
- }
- // jumping
- else if(mario.vy < 0){
-  if(IsSolidTile(left, top) || IsSolidTile(right, top)){
-   mario.y = (top + 1) * TILE_SIZE;
-   mario.vy = 0;
-  }
- }
-
- //recompute AFTER correction
- bottom = WorldToTile(mario.y + 31);
- grounded =
- IsSolidTile(left,  WorldToTile(mario.y + 32)) ||
- IsSolidTile(right, WorldToTile(mario.y + 32));
- // --- Direction follows velocity ---
- if(mario.vx < 0) mario.dir = DIR_L;
- if(mario.vx > 0) mario.dir = DIR_R;
-
- // --- State resolution (ONLY place state is set) ---
- if(!grounded){
-  if(mario.vy < 0)
-   mario.state = ST_JUMP;
-  else
-   mario.state = ST_FALL;
- }
- else{
-  // trigger turn
-  if(mario.turnTimer == 0 &&
-   ((keyL && mario.vx > 1) || (keyR && mario.vx < -1))){
- 
-   mario.turnTimer = TURN_TIME;
-   mario.turnDir = mario.dir; // LOCK direction at start of skid
-  }  
-  // lock turn state while timer active
-  if(mario.turnTimer > 0){
-   mario.state = ST_TURN;
-   mario.turnTimer--;
-  }
-  else if(mario.vx == 0){
-   mario.state = ST_IDLE;
-  }
-  else{
-   mario.state = ST_WALK;
-  }
- }
-}
-
+#include "Game.HC";
 CDC* GetMarioSprite()
 {
  mario.animTimer++;
@@ -181,25 +49,57 @@ CDC* GetMarioSprite()
 U0 DrawMarioGame(CTask *task, CDC *dc)
 {
  I64 x, y;
+ I64 startX = camX / TILE_SIZE;
+ I64 endX = (camX + SCREEN_W) / TILE_SIZE + 1;
 
  // --- Background ---
- GrBlot3(dc,0,64,0,SPRITEBG);
+ dc->color = BLUE;
+ GrRect(dc,0,0,640,480);
+
+ GrBlot3(dc,0,96,0,SPRITEBG);
 
  // --- Draw level tiles ---
  for(y = 0; y < clvl->h; y++){
-  for(x = 0; x < clvl->w; x++){
+  for(x = startX; x < endX; x++){
+   switch(clvl->tiles[y * clvl->w + x]){
 
-   if(clvl->tiles[y * clvl->w + x] == 1){
-    GrBlot3(dc, x * 32, y * 32, 0, FLOOR1);
+   case TILE_GROUND: // floor
+    GrBlot3(dc, x*32 - camX, y*32, 0, FLOOR1);
+    break;
+
+   case TILE_BRICK: // brick
+    GrBlot3(dc, x*32 - camX, y*32, 0, FLOOR2);
+    break;
+  
+   case TILE_QUESTION: // ? block (coin)
+   case TILE_Q_MUSHRM: // ? block (mushroom)
+    I64 idx = y * clvl->w + x;
+    if(clvl->tiles[idx] == 3 || clvl->tiles[idx] == 4){
+     if(clvl->tileState[idx] == 0){ // unused block
+      // simple global animation timer
+      I64 f = (mario.animTimer / 10) % 5;
+      CDC* spr;
+      if(f == 0) spr = Q1;
+      else if(f == 1) spr = Q2;
+      else if(f == 2) spr = Q3;
+      else if(f == 3) spr = Q2;
+      else spr = Q1;
+      GrBlot3(dc, x*32 - camX, y*32, 0, spr);
+     }
+     else{
+      // used block
+      GrBlot3(dc, x*32 - camX, y*32, 0, Q4);
+     }
+    }
+    break;
    }
-
   }
  }
 
  UpdateMario();
 
- CDC* spr = GetMarioSprite();
- GrBlot3(dc,mario.x,mario.y,0,spr);
+ CDC* player = GetMarioSprite();
+ GrBlot3(dc,mario.x -camX,mario.y,0,player);
 }
 
 
@@ -208,7 +108,7 @@ U0 SongTask()
  Fs->task_end_cb=&SndTaskEndCB;
  MusicSettingsRst;
  while(TRUE){
-  music.tempo = 3;
+  music.tempo = 2;
   music.stacatto_factor = .5;
   Play("5eEqEEeCEhG4hGq5C4GeEABttB#..");
   Play("AG5EGAFGECDq4hB5qC4GeErABttB#..AG");
@@ -219,6 +119,20 @@ U0 SongTask()
   Play("5D#DC");
  }
 
+}
+U0 AnimateTask()
+{
+ while(TRUE){
+  if(jumpSoundActive){
+   jumpSoundActive = 0;
+
+   music.tempo=24;
+   Play("e4DC#DD#EFF#GG#AA#B5CC#D"); //blocks here, which is fine in this thread
+   music.tempo=2;
+  }
+
+  Yield;  // or Sleep(1) depending on your system
+ }
 }
 U8 *WORLD_FILE = MStrPrint("%s%s",DirCur,"/Levels/World1-1.TXT");
 
@@ -235,6 +149,7 @@ U0 MarioMain()
  clvl = LoadLevel(WORLD_FILE);
  Fs->draw_it = &DrawMarioGame;
  Fs->song_task=Spawn(&SongTask,Fs);
+ Fs->animate_task=Spawn(&AnimateTask,Fs);
 
  while(TRUE)
  {

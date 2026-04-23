@@ -40,10 +40,13 @@ U8* SkipWhitespace(U8 *s)
  return s;
 }
 
-U8 CharToTile(U8 c)
+I64 CharToTile(U8 c)
 {
  switch(c){
-  case '#': return 1; // solid
+  case '#': return TILE_GROUND; // solid
+  case '%': return TILE_BRICK; // brick
+  case '?': return TILE_QUESTION; // ? block
+  case '!': return TILE_Q_MUSHRM; // mushroom block
   case '.': return 0; // empty
   case 'P': return 0; // player spawn (handled separately)
  }
@@ -76,7 +79,7 @@ Level *LoadLevel(U8 *path)
    U8 tag[8], w[8], h[8];
    U8 *tptr=tag,*wptr=w,*hptr=h;
 
-   StrScan(ln,"%s %s %s",&tptr,&wptr,&hptr);
+   StrScan(ln,"%s %s %s",&tptr,&wptr,&hptr);
 
    lvl->w = Str2I64(wptr);
    lvl->h = Str2I64(hptr);
@@ -125,7 +128,7 @@ Level *LoadLevel(U8 *path)
     //SpawnGoomba(x, y);
    }
    else if(!StrEqual(type,"PIPE")){
-    //SpawnPipe(x, y);
+    //SpawnPipe(x, y);
    }
   }
 
@@ -134,6 +137,11 @@ Level *LoadLevel(U8 *path)
  }
 
  Free(fptr);
+ //allocate tilestate
+ lvl->tileState = MAlloc(lvl->w * lvl->h);
+ MemSet(lvl->tileState, 0, lvl->w * lvl->h);
+ lvl->tileBounce = MAlloc(lvl->w * lvl->h);
+ MemSet(lvl->tileBounce, 0, lvl->w * lvl->h);
  return lvl;
 }
 
