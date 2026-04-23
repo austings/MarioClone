@@ -1,7 +1,33 @@
 U0 SpawnCoin(I64 x, I64 y)
 {
- // placeholder — just play sound for now
- // later: create entity that rises and falls
+ I64 i;
+ for(i = 0; i < MAX_COINS; i++){
+  if(!coins[i].active){
+
+   coins[i].active = 1;
+   coins[i].x = x;
+   coins[i].y = y;
+   coins[i].vy = -12;     // shoot upward
+   coins[i].timer = 30;   // lifetime
+
+   break;
+  }
+ }
+}
+U0 UpdateCoins()
+{
+ I64 i;
+ for(i = 0; i < MAX_COINS; i++){
+  if(!coins[i].active) goto updateNext;
+  coins[i].y += coins[i].vy;
+  coins[i].vy += 1;   // gravity
+
+  coins[i].timer--;
+  if(coins[i].timer <= 0){
+   coins[i].active = 0;
+  }
+  updateNext:
+ }
 }
 
 U0 HandleBlockHit(I64 tx, I64 ty)
@@ -15,7 +41,8 @@ U0 HandleBlockHit(I64 tx, I64 ty)
  // only handle ? blocks
  if((t == 3 || t == 4) && clvl->tileState[idx] == 0){
   clvl->tileState[idx] = 1; // mark used
-  // spawn coin
+  // spawn coin
+  clvl->tileBounce[idx] = -8;   // start upward motion
   SpawnCoin(tx * 32, ty * 32);
  }
 }
@@ -58,15 +85,6 @@ U0 UpdateMario()
  }
  jumpHeld = keyJump;
 
- if(jumpBuffer > 0) jumpBuffer--;
-
-
- if(jumpBuffer > 0 && grounded){
-  mario.vy = JUMP_VEL;
-  jumpBuffer = 0;
-
-  jumpSoundActive = 1;
- }
 
  // --- Gravity ---
  mario.vy += GRAVITY;
@@ -87,7 +105,7 @@ U0 UpdateMario()
 
  // --- vertical collision ---
  I64 left   = WorldToTile(mario.x);
- I64 right  = WorldToTile(mario.x + 31);
+ I64 right  = WorldToTile(mario.x + 23);
  I64 top    = WorldToTile(mario.y);
  I64 bottom = WorldToTile(mario.y + 31);
  // moving right
@@ -135,9 +153,20 @@ U0 UpdateMario()
 
  //recompute AFTER correction
  bottom = WorldToTile(mario.y + 31);
- grounded =
- IsSolidTile(left,  WorldToTile(mario.y + 32)) ||
- IsSolidTile(right, WorldToTile(mario.y + 32));
+ //if( mario.vy >=0){
+  grounded =
+   IsSolidTile(left,  WorldToTile(mario.y + 32)) ||
+   IsSolidTile(right, WorldToTile(mario.y + 32));
+ //}
+ if(jumpBuffer > 0 && grounded){
+  mario.vy = JUMP_VEL;
+  jumpBuffer = 0;
+
+  jumpSoundActive = 1;
+ }
+
+ if(jumpBuffer > 0) jumpBuffer--;
+
  // --- Direction follows velocity ---
  if(mario.vx < 0) mario.dir = DIR_L;
  if(mario.vx > 0) mario.dir = DIR_R;

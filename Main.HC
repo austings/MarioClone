@@ -2,121 +2,29 @@
 #include "Globals.HC";
 #include "Level.HC";
 #include "Game.HC";
-CDC* GetMarioSprite()
-{
- mario.animTimer++;
-
- switch(mario.state){
-
-  case ST_IDLE:
-   if(mario.dir==DIR_L) 
-    return ONEL;
-   else
-    return ONER;
-
-  case ST_WALK:
-   if(mario.animTimer > 6){
-    mario.frame = (mario.frame + 1) % 3;
-    mario.animTimer = 0;
-   }
-
-   if(mario.dir == DIR_L){
-    if(mario.frame==0) return TWOL;
-    if(mario.frame==1) return THREEL;
-    return FOURL;
-   } else {
-    if(mario.frame==0) return TWOR;
-    if(mario.frame==1) return THREER;
-    return FOURR;
-   }
-
-  case ST_TURN:
-   if(mario.turnDir==DIR_L)
-    return FIVEL;
-   else
-    return FIVER;
-
-  case ST_JUMP:
-  case ST_FALL:
-   if(mario.dir==DIR_L)
-    return SIXL; 
-   else
-    return SIXR;
- }
-
- return ONER;
-}
-U0 DrawMarioGame(CTask *task, CDC *dc)
-{
- I64 x, y;
- I64 startX = camX / TILE_SIZE;
- I64 endX = (camX + SCREEN_W) / TILE_SIZE + 1;
-
- // --- Background ---
- dc->color = BLUE;
- GrRect(dc,0,0,640,480);
-
- GrBlot3(dc,0,96,0,SPRITEBG);
-
- // --- Draw level tiles ---
- for(y = 0; y < clvl->h; y++){
-  for(x = startX; x < endX; x++){
-   switch(clvl->tiles[y * clvl->w + x]){
-
-   case TILE_GROUND: // floor
-    GrBlot3(dc, x*32 - camX, y*32, 0, FLOOR1);
-    break;
-
-   case TILE_BRICK: // brick
-    GrBlot3(dc, x*32 - camX, y*32, 0, FLOOR2);
-    break;
-  
-   case TILE_QUESTION: // ? block (coin)
-   case TILE_Q_MUSHRM: // ? block (mushroom)
-    I64 idx = y * clvl->w + x;
-    if(clvl->tiles[idx] == 3 || clvl->tiles[idx] == 4){
-     if(clvl->tileState[idx] == 0){ // unused block
-      // simple global animation timer
-      I64 f = (mario.animTimer / 10) % 5;
-      CDC* spr;
-      if(f == 0) spr = Q1;
-      else if(f == 1) spr = Q2;
-      else if(f == 2) spr = Q3;
-      else if(f == 3) spr = Q2;
-      else spr = Q1;
-      GrBlot3(dc, x*32 - camX, y*32, 0, spr);
-     }
-     else{
-      // used block
-      GrBlot3(dc, x*32 - camX, y*32, 0, Q4);
-     }
-    }
-    break;
-   }
-  }
- }
-
- UpdateMario();
-
- CDC* player = GetMarioSprite();
- GrBlot3(dc,mario.x -camX,mario.y,0,player);
-}
-
+#include "Draw.HC";
 
 U0 SongTask()
 {
  Fs->task_end_cb=&SndTaskEndCB;
  MusicSettingsRst;
  while(TRUE){
-  music.tempo = 2;
-  music.stacatto_factor = .5;
-  Play("5eEqEEeCEhG4hGq5C4GeEABttB#..");
-  Play("AG5EGAFGECDq4hB5qC4GeErABttB#..AG");
-  Play("e5EGAFGECD4Brr");
-  Play("5ettGF#F..D#E4A#A5C4A5ttCD..rr");
-  Play("5ttGF#F..D#EGrGG");
-  Play("5ettGF#F..D#E4A#A5C4A5ttCD..rr");
-  Play("5D#DC");
+  music.tempo = 4;
+  music.stacatto_factor = 1;
+  Play("5eEErErCErhG4hrGr");
+  Play("q5Cer4GrErArBrB#Ar");
+  Play("G5ErGqAeFGrqEeCD4hBr");
+  Play("5qCr4GrErArBrB#rArG");
+  Play("e5EGAFGrErCD4hBrr");
+  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
+  Play("5GF#FD#rE6CrChC");
+  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
+  Play("5D#rrDrhCr");
+  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
+  Play("5GF#FD#rE6CrChC");
+  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
+  Play("5D#rDrhCr");
+
  }
 
 }
@@ -128,7 +36,7 @@ U0 AnimateTask()
 
    music.tempo=24;
    Play("e4DC#DD#EFF#GG#AA#B5CC#D"); //blocks here, which is fine in this thread
-   music.tempo=2;
+   music.tempo=4;
   }
 
   Yield;  // or Sleep(1) depending on your system
@@ -151,11 +59,11 @@ U0 MarioMain()
  Fs->song_task=Spawn(&SongTask,Fs);
  Fs->animate_task=Spawn(&AnimateTask,Fs);
 
- while(TRUE)
- {
-  input = GetMsg(&arg1,&arg2,
-    1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP);
-
+ while(TRUE){
+  while( input = GetMsg(&arg1,&arg2,
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+  {
+ 
   switch(input)
   {
    case MSG_KEY_DOWN:
@@ -194,8 +102,10 @@ U0 MarioMain()
    break;
   }
 
-  Refresh;
  }
+ Refresh;
+
+}
 
 fs_end:
  DCDel(dc);

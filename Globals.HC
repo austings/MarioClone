@@ -57,6 +57,14 @@ static CDC* SPRITEBG= FramePtr("SPRITEBG");
 #define TURN_ACCEL  .85   // lower = longer skid
 #define TURN_TIME   10
 #define TILE_SIZE 32
+#define MAX_COINS 32
+
+class Coin {
+ I64 x, y;
+ I64 vy;
+ I64 timer;
+ U8 active;
+} coins[MAX_COINS];
 
 class Mario{
  F64 x, y;
@@ -98,9 +106,9 @@ U0 InitMario()
  mario.turnTimer = 0;
 }
 
-Bool IsSolidTile(I64 tx, I64 ty)
+Bool IsSolidTile(I64 tx, I64 ty)
 {
- if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
+ if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
   return FALSE;
 
  return clvl->tiles[ty * clvl->w + tx] >= 1;
