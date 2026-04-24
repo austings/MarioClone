@@ -1,7 +1,7 @@
 #include "Wad.HC";
 #include "Globals.HC";
 #include "Level.HC";
-#include "Game.HC";
+#include "Game.HC";
 #include "Draw.HC";
 
 U0 SongTask()
@@ -51,12 +51,13 @@ U0 AnimateTask()
 {
  while(TRUE){
   if(jumpSoundActive){
-   jumpSoundActive = 0;
 
    music.tempo=32;
    Play("e4DC#DD#EFF#GG#AA#B5CC#D"); //blocks here, which is fine in this thread
    music.stacatto_factor = 1;
    music.tempo=4;
+   jumpSoundActive = 0;
+
   }
 
   Yield;  // or Sleep(1) depending on your system
@@ -77,7 +78,7 @@ U0 MarioMain()
  clvl = LoadLevel(WORLD_FILE);
  Fs->draw_it = &DrawMarioGame;
  Fs->song_task=Spawn(&SongTask,Fs);
- Fs->animate_task=Spawn(&AnimateTask,Fs);
+ Fs->animate_task=Spawn(&AnimateTask,Fs);
 
  while(TRUE){
   while( input = GetMsg(&arg1,&arg2,

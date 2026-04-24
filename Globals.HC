@@ -25,6 +25,24 @@ static CDC* C3= FramePtr("C3");
 static CDC* C4= FramePtr("C4");
 static CDC* C5= FramePtr("C5");
 static CDC* SPRITEBG= FramePtr("SPRITEBG");
+static CDC* BL1= FramePtr("BL1");
+static CDC* BL2= FramePtr("BL2");
+static CDC* BL3= FramePtr("BL3");
+static CDC* BL4= FramePtr("BL4");
+static CDC* BL5= FramePtr("BL5");
+static CDC* BL6= FramePtr("BL6");
+static CDC* BL7= FramePtr("BL7");
+static CDC* BL8= FramePtr("BL8");
+static CDC* BR1= FramePtr("BR1");
+static CDC* BR2= FramePtr("BR2");
+static CDC* BR3= FramePtr("BR3");
+static CDC* BR4= FramePtr("BR4");
+static CDC* BR5= FramePtr("BR5");
+static CDC* BR6= FramePtr("BR6");
+static CDC* BR7= FramePtr("BR7");
+static CDC* BR8= FramePtr("BR8");
+static CDC* MUSH= FramePtr("MUSH");
+
 
 //Blocks
 #define TILE_GROUND	1
@@ -58,6 +76,7 @@ static CDC* SPRITEBG= FramePtr("SPRITEBG");
 #define TURN_TIME   10
 #define TILE_SIZE 32
 #define MAX_COINS 32
+#define MAX_MUSHRM 16
 
 class Coin {
  I64 x, y;
@@ -65,6 +84,13 @@ class Coin {
  I64 timer;
  U8 active;
 } coins[MAX_COINS];
+
+class Mushroom {
+ I64 x, y, targetY;
+ I64 vx, vy;
+ U8 active;
+ U8 rising;
+} mush[MAX_MUSHRM];
 
 class Mario{
  F64 x, y;
@@ -91,7 +117,7 @@ class Level {
  U8 *tiles;     // w*h
  U8 *tileState;
  I8 *tileBounce;   // signed so we can go up/down
- I8 *tileBounceVel;   // velocity
+ I8 *tileBounceVel;   // velocity
 
 };
 Level *clvl;

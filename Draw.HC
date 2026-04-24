@@ -16,6 +16,18 @@ U0 DrawCoins(CDC *dc)
  }
 }
 
+U0 DrawMushroom(CDC *dc)
+{
+ I64 i;
+ for(i = 0; i < MAX_MUSHRM; i++){
+  if(!mush[i].active) goto next;
+
+  GrBlot3(dc, mush[i].x - camX, mush[i].y, 0, MUSH);
+
+  next:
+ }
+}
+
 CDC* GetMarioSprite()
 {
  mario.animTimer++;
@@ -72,6 +84,8 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
  GrRect(dc,0,0,640,480);
  GrBlot3(dc,0,96,0,SPRITEBG);
 
+ DrawCoins(dc);
+ DrawMushroom(dc);
 
  // --- Draw level tiles ---
  for(y = 0; y < clvl->h; y++){
@@ -84,7 +98,7 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
 
    case TILE_BRICK:
     idx = y * clvl->w + x;
-    by = clvl->tileBounce[idx];
+    by = clvl->tileBounce[idx];
     GrBlot3(dc, x*32 - camX, y*32 + by, 0, FLOOR2);
     break;
   
@@ -114,9 +128,9 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
   }
  }
  UpdateTileBounce();
- UpdateCoins();  
+ UpdateCoins();
+ UpdateMushroom();  
  UpdateMario();
- DrawCoins(dc);
  CDC* player = GetMarioSprite();
  GrBlot3(dc,mario.x -camX,mario.y,0,player);
 }

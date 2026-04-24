@@ -7,13 +7,35 @@ U0 SpawnCoin(I64 x, I64 y)
    coins[i].active = 1;
    coins[i].x = x;
    coins[i].y = y;
-   coins[i].vy = -12;     // shoot upward
+   coins[i].vy = -15;     // shoot upward
    coins[i].timer = 30;   // lifetime
 
    break;
   }
  }
 }
+
+U0 SpawnMushroom(I64 x, I64 y)
+{
+ I64 i;
+ for(i = 0; i < MAX_MUSHRM; i++){
+  if(!mush[i].active){
+
+   mush[i].active = 1;
+   mush[i].x = x;
+   mush[i].y = y;
+
+   mush[i].targetY = y - 32;
+   mush[i].vx = 0;     // start moving right
+   mush[i].vy = -2;    // pop upward like mario
+  
+   mush[i].rising = 1;
+   break;
+  }
+ }
+}
+
+
 U0 UpdateCoins()
 {
  I64 i;
@@ -30,6 +52,80 @@ U0 UpdateCoins()
  }
 }
 
+U0 UpdateMushroom()
+{
+ I64 i;
+ for(i = 0; i < MAX_MUSHRM; i++){
+  if(!mush[i].active) goto next;
+
+  if(mush[i].rising){
+   mush[i].y += mush[i].vy;
+   
+   if(mush[i].y <= mush[i].targetY){
+    mush[i].y = mush[i].targetY;
+    
+    mush[i].rising = 0;
+    mush[i].vx = 2;
+    mush[i].vy = 0;
+   }
+   
+   goto next;
+  }
+  // --- gravity ---
+  mush[i].vy += GRAVITY;
+  if(mush[i].vy > MAX_FALL)
+   mush[i].vy = MAX_FALL;
+
+  // --- horizontal move ---
+  mush[i].x += mush[i].vx;
+
+  I64 left   = WorldToTile(mush[i].x);
+  I64 right  = WorldToTile(mush[i].x + 31);
+  I64 top    = WorldToTile(mush[i].y);
+  I64 bottom = WorldToTile(mush[i].y + 31);
+
+  // collide right
+  if(mush[i].vx > 0){
+   if(IsSolidTile(right, top) || IsSolidTile(right, bottom)){
+    mush[i].x = right * TILE_SIZE - 32;
+    mush[i].vx = -mush[i].vx; // reverse
+   }
+  }
+  // collide left
+  else if(mush[i].vx < 0){
+   if(IsSolidTile(left, top) || IsSolidTile(left, bottom)){
+    mush[i].x = (left + 1) * TILE_SIZE;
+    mush[i].vx = -mush[i].vx; // reverse
+   }
+  }
+
+  // --- vertical move ---
+  mush[i].y += mush[i].vy;
+
+  left   = WorldToTile(mush[i].x);
+  right  = WorldToTile(mush[i].x + 31);
+  top    = WorldToTile(mush[i].y);
+  bottom = WorldToTile(mush[i].y + 31);
+
+  // falling
+  if(mush[i].vy > 0){
+   if(IsSolidTile(left, bottom) || IsSolidTile(right, bottom)){
+    mush[i].y = bottom * TILE_SIZE - 32;
+    mush[i].vy = 0;
+   }
+  }
+  // hitting ceiling
+  else if(mush[i].vy < 0){
+   if(IsSolidTile(left, top) || IsSolidTile(right, top)){
+    mush[i].y = (top + 1) * TILE_SIZE;
+    mush[i].vy = 0;
+   }
+  }
+
+  next:
+ }
+}
+
 U0 HandleBlockHit(I64 tx, I64 ty)
 {
  if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
@@ -39,8 +135,18 @@ U0 HandleBlockHit(I64 tx, I64 ty)
  U8 t = clvl->tiles[idx];
 
  // only handle ? blocks
- if((t == TILE_QUESTION || t==TILE_Q_MUSHRM) 
-    && clvl->tileBounce[idx] == 0 && clvl->tileState[idx] == 0){
+ if((t==TILE_Q_MUSHRM)
+    && clvl->tileBounce[idx] == 0 
+    && clvl->tileState[idx] == 0){
+  clvl->tileState[idx] = 1; // mark used
+  // spawn coin
+  clvl->tileBounce[idx] = 0;
+  clvl->tileBounceVel[idx] = -4;  // upward impulse   // start upward motion
+  SpawnMushroom(tx*32,ty*32);
+ }
+ else if((t == TILE_QUESTION) 
+    && clvl->tileBounce[idx] == 0 
+    && clvl->tileState[idx] == 0){
   clvl->tileState[idx] = 1; // mark used
   // spawn coin
   clvl->tileBounce[idx] = 0;
@@ -176,16 +282,27 @@ U0 UpdateMario(){
   I64 hitY = top;
   I64 hitX1 = left;
   I64 hitX2 = right;
+  
   if(IsSolidTile(hitX1, hitY) || IsSolidTile(hitX2, hitY)){
-   // handle ? blocks
-   HandleBlockHit(hitX1, hitY);
-   if(hitX2 != hitX1)
+   
+   // pick center tile
+   I64 midX = WorldToTile(mario.x + 12);
+   
+   if(IsSolidTile(midX, hitY)){
+    HandleBlockHit(midX, hitY);
+   }
+   else if(IsSolidTile(hitX1, hitY)){
+    HandleBlockHit(hitX1, hitY);
+   }
+   else if(IsSolidTile(hitX2, hitY)){
     HandleBlockHit(hitX2, hitY);
-
+   }
+   
    mario.y = (top + 1) * TILE_SIZE;
    mario.vy = 0;
   }
- }
+ }  
+ 
 
  //recompute AFTER correction
  bottom = WorldToTile(mario.y + 31);
