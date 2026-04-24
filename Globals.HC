@@ -86,7 +86,7 @@ class Coin {
 } coins[MAX_COINS];
 
 class Mushroom {
- I64 x, y, targetY;
+ I64 x, y, targetY;
  I64 vx, vy;
  U8 active;
  U8 rising;
@@ -102,6 +102,8 @@ class Mario{
  I64 animTimer;
  I64 turnTimer;
  U8 turnDir;
+ U8 transforming;     // NEW
+ I64 transformTimer;  // NEW
 } mario;
 
 //Globals TODO: make object?
@@ -141,6 +143,15 @@ Bool IsSolidTile(I64 tx, I64 ty)
   return FALSE;
 
  return clvl->tiles[ty * clvl->w + tx] >= 1;
+}
+
+Bool AABBOverlap(I64 x1, I64 y1, I64 w1, I64 h1,
+                 I64 x2, I64 y2, I64 w2, I64 h2)
+{
+ return !(x1 + w1 <= x2 ||
+          x1 >= x2 + w2 ||
+          y1 + h1 <= y2 ||
+          y1 >= y2 + h2);
 }
 
 I64 WorldToTile(I64 v)

@@ -30,46 +30,68 @@ U0 DrawMushroom(CDC *dc)
 
 CDC* GetMarioSprite()
 {
+ if(mario.transforming){
+  if(mario.dir == DIR_L)
+   return BL8;   // intermediate left
+  else
+   return BR8;   // intermediate right
+ }
  mario.animTimer++;
 
  switch(mario.state){
 
   case ST_IDLE:
-   if(mario.dir==DIR_L) 
-    return ONEL;
-   else
-    return ONER;
-
+  if(mario.isBig){
+   if(mario.dir==DIR_L) return BL1;
+   else return BR1;
+  }else{
+   if(mario.dir==DIR_L) return ONEL;
+   else return ONER;
+  }
   case ST_WALK:
    if(mario.animTimer > 6){
     mario.frame = (mario.frame + 1) % 3;
     mario.animTimer = 0;
    }
-
-   if(mario.dir == DIR_L){
-    if(mario.frame==0) return TWOL;
-    if(mario.frame==1) return THREEL;
-    return FOURL;
-   } else {
-    if(mario.frame==0) return TWOR;
-    if(mario.frame==1) return THREER;
-    return FOURR;
+   if(mario.isBig){
+    if(mario.dir == DIR_L){
+     if(mario.frame==0) return BL3;
+     if(mario.frame==1) return BL4;
+     return BL5;
+    } else {
+     if(mario.frame==0) return BR3;
+     if(mario.frame==1) return BR4;
+     return BR5;
+    }
+   }else{
+    if(mario.dir == DIR_L){
+     if(mario.frame==0) return TWOL;
+     if(mario.frame==1) return THREEL;
+     return FOURL;
+    } else {
+     if(mario.frame==0) return TWOR;
+     if(mario.frame==1) return THREER;
+     return FOURR;
+    }
    }
-
   case ST_TURN:
-   if(mario.turnDir==DIR_L)
-    return FIVEL;
-   else
-    return FIVER;
-
+   if(mario.isBig){
+    if(mario.turnDir==DIR_L) return BL6;
+    else return BR6;
+   }else{
+    if(mario.turnDir==DIR_L) return FIVEL;
+    else return FIVER;
+   }
   case ST_JUMP:
   case ST_FALL:
-   if(mario.dir==DIR_L)
-    return SIXL; 
-   else
-    return SIXR;
+   if(mario.isBig){
+    if(mario.dir==DIR_L) return BL7;
+    else return BR7;
+   }else{
+    if(mario.dir==DIR_L) return SIXL;
+    else return SIXR;
+   }
  }
-
  return ONER;
 }
 
