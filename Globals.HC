@@ -77,20 +77,13 @@ static CDC* MUSH= FramePtr("MUSH");
 #define TILE_SIZE 32
 #define MAX_COINS 32
 #define MAX_MUSHRM 16
-
-class Coin {
- I64 x, y;
- I64 vy;
- I64 timer;
- U8 active;
-} coins[MAX_COINS];
-
-class Mushroom {
- I64 x, y, targetY;
- I64 vx, vy;
- U8 active;
- U8 rising;
-} mush[MAX_MUSHRM];
+//Globals TODO: make object?
+U8 keyL, keyR, keyJump;
+I64 camX;
+I64 jumpBuffer = 0;
+I64 grounded = 0;
+U8 jumpHeld = 0;
+U8 jumpSoundActive = 0;
 
 class Mario{
  F64 x, y;
@@ -106,23 +99,33 @@ class Mario{
  I64 transformTimer;  // NEW
 } mario;
 
-//Globals TODO: make object?
-U8 keyL, keyR, keyJump;
-I64 camX;
-I64 jumpBuffer = 0;
-I64 grounded = 0;
-U8 jumpHeld = 0;
-U8 jumpSoundActive = 0;
+I64 MarioW()
+{
+ return 24; // keep width same for now (simpler)
+}
 
-class Level {
- I64 w, h;
- U8 *tiles;     // w*h
- U8 *tileState;
- I8 *tileBounce;   // signed so we can go up/down
- I8 *tileBounceVel;   // velocity
+I64 MarioH()
+{
+ if(mario.isBig) return 64; 
+ return 32;
+}
 
-};
-Level *clvl;
+class Coin {
+ I64 x, y;
+ I64 vy;
+ I64 timer;
+ U8 active;
+} coins[MAX_COINS];
+
+class Mushroom {
+ I64 x, y, targetY;
+ I64 vx, vy;
+ U8 active;
+ U8 rising;
+} mush[MAX_MUSHRM];
+
+
+
 U0 InitMario()
 {
  mario.x = 0;
@@ -137,6 +140,16 @@ U0 InitMario()
  mario.isBig = 0;
 }
 
+class Level {
+ I64 w, h;
+ U8 *tiles;     // w*h
+ U8 *tileState;
+ I8 *tileBounce;   // signed so we can go up/down
+ I8 *tileBounceVel;   // velocity
+
+};
+Level *clvl;
+
 Bool IsSolidTile(I64 tx, I64 ty)
 {
  if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
@@ -146,7 +159,7 @@ Bool IsSolidTile(I64 tx, I64 ty)
 }
 
 Bool AABBOverlap(I64 x1, I64 y1, I64 w1, I64 h1,
-                 I64 x2, I64 y2, I64 w2, I64 h2)
+                 I64 x2, I64 y2, I64 w2, I64 h2)
 {
  return !(x1 + w1 <= x2 ||
           x1 >= x2 + w2 ||

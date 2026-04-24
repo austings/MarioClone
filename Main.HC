@@ -52,7 +52,7 @@ U0 SongTask()
 U0 AnimateTask()
 {
  while(TRUE){
-  if(jumpSoundActive){
+  if(jumpSoundActive){
 
    music.tempo=32;
    Play("e4DC#DD#EFF#GG#AA#B5CC#D"); //blocks here, which is fine in this thread
@@ -84,7 +84,7 @@ U0 MarioMain()
 
  while(TRUE){
   while(input = GetMsg(&arg1,&arg2,
-     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
   {
  
   switch(input)

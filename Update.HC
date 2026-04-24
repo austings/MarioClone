@@ -120,7 +120,10 @@ U0 UpdateMario(){
   
   if(mario.transformTimer <= 0){
    mario.transforming = 0;
-   mario.isBig = 1; // final state
+   if(!mario.isBig){
+    mario.isBig = 1; // final state
+    mario.y -= (MarioH());
+   }
   }
 
   // freeze movement during transform (optional but matches feel)
@@ -137,7 +140,7 @@ U0 UpdateMario(){
   else
    mario.vx -= ACCEL;
 
-  if(mario.vx < -MAX_SPEED)
+  if(mario.vx < -MAX_SPEED)
    mario.vx = -MAX_SPEED;
  }
  else if(keyR){
@@ -186,13 +189,13 @@ U0 UpdateMario(){
 
  // --- vertical collision ---
  I64 left   = WorldToTile(mario.x);
- I64 right  = WorldToTile(mario.x + 23);
+ I64 right  = WorldToTile(mario.x + MarioW() -1);
  I64 top    = WorldToTile(mario.y);
- I64 bottom = WorldToTile(mario.y + 31);
+ I64 bottom = WorldToTile(mario.y + MarioH() -1);
  // moving right
  if(mario.vx > 0){
   if(IsSolidTile(right, top) || IsSolidTile(right, bottom)){
-   mario.x = right * TILE_SIZE - 32;
+   mario.x = right * TILE_SIZE - MarioW();
    mario.vx = 0;
   }
  }
@@ -206,13 +209,13 @@ U0 UpdateMario(){
  mario.y += mario.vy;
 
  left   = WorldToTile(mario.x);
- right  = WorldToTile(mario.x + 23);
- top    = WorldToTile(mario.y);
- bottom = WorldToTile(mario.y + 31);
+ right  = WorldToTile(mario.x + MarioW() -1);
+ top    = WorldToTile(mario.y -4);
+ bottom = WorldToTile(mario.y + MarioH() -1);
  // falling
  if(mario.vy > 0){
   if(IsSolidTile(left, bottom) || IsSolidTile(right, bottom)){
-   mario.y = bottom * TILE_SIZE - 32;
+   mario.y = bottom * TILE_SIZE - MarioH();
    mario.vy = 0;
   }
  }
@@ -244,11 +247,11 @@ U0 UpdateMario(){
  
 
  //recompute AFTER correction
- bottom = WorldToTile(mario.y + 31);
+ bottom = WorldToTile(mario.y + MarioH());
  //if( mario.vy >=0){
   grounded =
-   IsSolidTile(left,  WorldToTile(mario.y + 32)) ||
-   IsSolidTile(right, WorldToTile(mario.y + 32));
+   IsSolidTile(left,  WorldToTile(mario.y + MarioH())) ||
+   IsSolidTile(right, WorldToTile(mario.y + MarioH()));
  //}
  if(jumpBuffer > 0 && grounded){
   mario.vy = JUMP_VEL;
