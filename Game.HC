@@ -39,16 +39,52 @@ U0 HandleBlockHit(I64 tx, I64 ty)
  U8 t = clvl->tiles[idx];
 
  // only handle ? blocks
- if((t == 3 || t == 4) && clvl->tileState[idx] == 0){
+ if((t == TILE_QUESTION || t==TILE_Q_MUSHRM) 
+    && clvl->tileBounce[idx] == 0 && clvl->tileState[idx] == 0){
   clvl->tileState[idx] = 1; // mark used
   // spawn coin
-  clvl->tileBounce[idx] = -8;   // start upward motion
+  clvl->tileBounce[idx] = 0;
+  clvl->tileBounceVel[idx] = -4;  // upward impulse   // start upward motion
   SpawnCoin(tx * 32, ty * 32);
+ }
+ // --- BRICK BLOCKS ---
+ else if(t == TILE_BRICK &&
+         clvl->tileBounce[idx] == 0){
+
+  // small Mario just bounce
+  if(!mario.isBig){
+    clvl->tileBounce[idx] = 0;
+    clvl->tileBounceVel[idx] = -4;
+  }
+  else{
+    // big Mario placeholder for break logic
+    // for now just bounce so can verify
+    clvl->tileBounce[idx] = 0;
+    clvl->tileBounceVel[idx] = -4;
+
+    // later:
+    // clvl->tiles[idx] = 0;
+    // SpawnBrickParticles(...)
+  }
  }
 }
 
-U0 UpdateMario()
-{
+U0 UpdateTileBounce(){
+I64 i;
+ for(i = 0; i < clvl->w * clvl->h; i++){
+  if(clvl->tileBounceVel[i] != 0 || clvl->tileBounce[i] != 0){
+   clvl->tileBounce[i] += clvl->tileBounceVel[i];
+   clvl->tileBounceVel[i] += 1; // gravity
+   // clamp when it settles back
+   if(clvl->tileBounce[i] > 0){
+    clvl->tileBounce[i] = 0;
+    clvl->tileBounceVel[i] = 0;
+   }
+  }
+ }
+}
+
+U0 UpdateMario(){
  // --- Horizontal movement ---
  if(keyL){
   if(mario.vx > 0)

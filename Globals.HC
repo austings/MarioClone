@@ -72,6 +72,7 @@ class Mario{
  U8 dir;
  U8 state;
  I64 frame;
+ I64 isBig; // 0 = small, 1 = big, 2= flower
  I64 animTimer;
  I64 turnTimer;
  U8 turnDir;
@@ -90,6 +91,7 @@ class Level {
  U8 *tiles;     // w*h
  U8 *tileState;
  I8 *tileBounce;   // signed so we can go up/down
+ I8 *tileBounceVel;   // velocity
 
 };
 Level *clvl;
@@ -104,9 +106,10 @@ U0 InitMario()
  mario.frame = 0;
  mario.animTimer = 0;
  mario.turnTimer = 0;
+ mario.isBig = 0;
 }
 
-Bool IsSolidTile(I64 tx, I64 ty)
+Bool IsSolidTile(I64 tx, I64 ty)
 {
  if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
   return FALSE;

@@ -60,28 +60,18 @@ CDC* GetMarioSprite()
 
  return ONER;
 }
+
 U0 DrawMarioGame(CTask *task, CDC *dc)
 {
- I64 x, y,i;
+ I64 x, y, idx, by;
  I64 startX = camX / TILE_SIZE;
  I64 endX = (camX + SCREEN_W) / TILE_SIZE + 1;
 
  // --- Background ---
  dc->color = BLUE;
  GrRect(dc,0,0,640,480);
-
  GrBlot3(dc,0,96,0,SPRITEBG);
 
- //tileBounce//coins
- for(i = 0; i < clvl->w * clvl->h; i++){
-
-  if(clvl->tileBounce[i] < 0){
-   clvl->tileBounce[i]++;   // going up
-  }
-  else if(clvl->tileBounce[i] > 0){
-   clvl->tileBounce[i]--;   // coming down
-  }
- }
 
  // --- Draw level tiles ---
  for(y = 0; y < clvl->h; y++){
@@ -92,14 +82,16 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
     GrBlot3(dc, x*32 - camX, y*32, 0, FLOOR1);
     break;
 
-   case TILE_BRICK: // brick
-    GrBlot3(dc, x*32 - camX, y*32, 0, FLOOR2);
+   case TILE_BRICK:
+    idx = y * clvl->w + x;
+    by = clvl->tileBounce[idx];
+    GrBlot3(dc, x*32 - camX, y*32 + by, 0, FLOOR2);
     break;
   
    case TILE_QUESTION: // ? block (coin)
    case TILE_Q_MUSHRM: // ? block (mushroom)
-    I64 idx = y * clvl->w + x;
-    I64 by = clvl->tileBounce[idx];
+    idx = y * clvl->w + x;
+    by = clvl->tileBounce[idx];
     if(clvl->tiles[idx] == 3 || clvl->tiles[idx] == 4){
      if(clvl->tileState[idx] == 0){ // unused block
       // simple global animation timer
@@ -114,13 +106,14 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
      }
      else{
       // used block
-      GrBlot3(dc, x*32 - camX, y*32, 0, Q4);
+      GrBlot3(dc, x*32 - camX, y*32 +by, 0, Q4);
      }
     }
     break;
    }
   }
  }
+ UpdateTileBounce();
  UpdateCoins();  
  UpdateMario();
  DrawCoins(dc);

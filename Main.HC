@@ -1,7 +1,7 @@
 #include "Wad.HC";
 #include "Globals.HC";
 #include "Level.HC";
-#include "Game.HC";
+#include "Game.HC";
 #include "Draw.HC";
 
 U0 SongTask()
@@ -12,18 +12,37 @@ U0 SongTask()
   music.tempo = 4;
   music.stacatto_factor = 1;
   Play("5eEErErCErhG4hrGr");
-  Play("q5Cer4GrErArBrB#Ar");
+  Play("q5Cr4GrErArBrB#Ar");
   Play("G5ErGqAeFGrqEeCD4hBr");
   Play("5qCr4GrErArBrB#rArG");
   Play("e5EGAFGrErCD4hBrr");
   Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
-  Play("5GF#FD#rE6CrChC");
+  Play("5GF#FD#rE6CrChCr");
   Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
   Play("5D#rrDrhCr");
   Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
-  Play("5GF#FD#rE6CrChC");
+  Play("5GF#FD#rE6CrChCr");
   Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
   Play("5D#rDrhCr");
+  Play("4eCCrCrCDrEC3rAhG");
+  Play("4eCCrCrCDwE");
+  Play("4eCCrCrCDrEC3rAhG");
+  Play("5eEErErCErhG4hrGr");
+  Play("q5Cer4GrErArBrB#Ar");
+  Play("G5ErGqAeFGrqEeCD4hBr");
+  Play("q5Cer4GrErArBrB#Ar");
+  Play("G5ErGqAeFGrqEeCD4hBr");
+  Play("5eECr4GrA#A5FrF4Ar");
+  Play("4eB5AAAGFEC4rAGrr");
+  Play("5eECr4GrA#A5FrF4Ar");
+  Play("4eB5FrFFEDhCrr");
+  Play("4eB5AAAGFEC4rAGrr");
+  Play("5eECr4GrA#A5FrF4Ar");
+  Play("4eB5FrFFEDhCrr");
+  Play("4eCCrCrCDrEC3rAhG");
+  Play("4eCCrCrCDwE");
+  Play("4eCCrCrCDrEC3rAhG");
+  Play("5eEErErCErhG4hrGr");
 
  }
 
@@ -34,8 +53,9 @@ U0 AnimateTask()
   if(jumpSoundActive){
    jumpSoundActive = 0;
 
-   music.tempo=24;
+   music.tempo=32;
    Play("e4DC#DD#EFF#GG#AA#B5CC#D"); //blocks here, which is fine in this thread
+   music.stacatto_factor = 1;
    music.tempo=4;
   }
 
@@ -61,7 +81,7 @@ U0 MarioMain()
 
  while(TRUE){
   while( input = GetMsg(&arg1,&arg2,
-     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
   {
  
   switch(input)

@@ -122,13 +122,13 @@ Level *LoadLevel(U8 *path)
    StrScan(ln,"%s %s %s",&tptr,&xptr,&yptr);
 
    x = Str2I64(xptr);
-   y = Str2I64(yptr);
+   y = Str2I64(yptr);
 
    if(!StrEqual(type,"GOOMBA")){
     //SpawnGoomba(x, y);
    }
    else if(!StrEqual(type,"PIPE")){
-    //SpawnPipe(x, y);
+    //SpawnPipe(x, y);
    }
   }
 
@@ -142,6 +142,8 @@ Level *LoadLevel(U8 *path)
  MemSet(lvl->tileState, 0, lvl->w * lvl->h);
  lvl->tileBounce = MAlloc(lvl->w * lvl->h);
  MemSet(lvl->tileBounce, 0, lvl->w * lvl->h);
+ lvl->tileBounceVel = MAlloc(lvl->w * lvl->h);
+ MemSet(lvl->tileBounceVel, 0, lvl->w * lvl->h);
  return lvl;
 }
 
