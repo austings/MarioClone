@@ -72,11 +72,11 @@ static CDC* MUSH= FramePtr("MUSH");
 #define JUMP_BUFFER_FRAMES 6
 #define GRAVITY 1
 #define MAX_FALL 10
-#define JUMP_VEL -18
+#define JUMP_VEL -17
 
 #define ACCEL       .25
 #define FRICTION    .25
-#define MAX_SPEED   6
+#define MAX_SPEED   9
 #define TURN_ACCEL  .85   // lower = longer skid
 #define TURN_TIME   10
 #define TILE_SIZE 32
@@ -88,7 +88,10 @@ I64 camX;
 I64 jumpBuffer = 0;
 I64 grounded = 0;
 U8 jumpHeld = 0;
-U8 jumpSoundActive = 0;
+Bool jumpSoundActive = 0;
+Bool coinSoundActive = 0;
+Bool powerUpSoundActive = 0;
+Bool powerUpAppearSoundActive = 0;
 U8 transformSeq[7] = {
  0, 2, 0, 2, 1, 2, 1
 };

@@ -12,7 +12,7 @@ U0 CheckMushroomPickup()
      mush[i].x, mush[i].y, 32, 32))
   {
    mush[i].active = 0;
-
+   powerUpSoundActive = TRUE;
    // trigger growth
    mario.transforming = 1;
    mario.transformTimer = 30;  // ~0.5 sec feel
@@ -39,6 +39,7 @@ U0 HandleBlockHit(I64 tx, I64 ty)
   clvl->tileBounce[idx] = 0;
   clvl->tileBounceVel[idx] = -4;  // upward impulse   // start upward motion
   SpawnMushroom(tx*32,ty*32-6);
+  powerUpAppearSoundActive = TRUE;
  }
  else if((t == TILE_QUESTION) 
     && clvl->tileBounce[idx] == 0 
@@ -48,6 +49,7 @@ U0 HandleBlockHit(I64 tx, I64 ty)
   clvl->tileBounce[idx] = 0;
   clvl->tileBounceVel[idx] = -4;  // upward impulse   // start upward motion
   SpawnCoin(tx * 32, ty * 32);
+  coinSoundActive = TRUE;
  }
  // --- BRICK BLOCKS ---
  else if(t == TILE_BRICK &&

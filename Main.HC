@@ -5,66 +5,8 @@
 #include "Game.HC";
 #include "Update.HC";
 #include "Draw.HC";
+#include "Sounds.HC";
 
-U0 SongTask()
-{
- Fs->task_end_cb=&SndTaskEndCB;
- MusicSettingsRst;
- while(TRUE){
-  music.tempo = 4;
-  music.stacatto_factor = 1;
-  Play("5eEErErCErhG4hrGr");
-  Play("q5Cr4GrErArBrB#Ar");
-  Play("G5ErGqAeFGrqEeCD4hBr");
-  Play("5qCr4GrErArBrB#rArG");
-  Play("e5EGAFGrErCD4hBrr");
-  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
-  Play("5GF#FD#rE6CrChCr");
-  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
-  Play("5D#rrDrhCr");
-  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
-  Play("5GF#FD#rE6CrChCr");
-  Play("5eGF#FD#rEr4A#A5Cr4A5CDr");
-  Play("5D#rDrhCr");
-  Play("4eCCrCrCDrEC3rAhG");
-  Play("4eCCrCrCDwE");
-  Play("4eCCrCrCDrEC3rAhG");
-  Play("5eEErErCErhG4hrGr");
-  Play("q5Cer4GrErArBrB#Ar");
-  Play("G5ErGqAeFGrqEeCD4hBr");
-  Play("q5Cer4GrErArBrB#Ar");
-  Play("G5ErGqAeFGrqEeCD4hBr");
-  Play("5eECr4GrA#A5FrF4Ar");
-  Play("4eB5AAAGFEC4rAGrr");
-  Play("5eECr4GrA#A5FrF4Ar");
-  Play("4eB5FrFFEDhCrr");
-  Play("4eB5AAAGFEC4rAGrr");
-  Play("5eECr4GrA#A5FrF4Ar");
-  Play("4eB5FrFFEDhCrr");
-  Play("4eCCrCrCDrEC3rAhG");
-  Play("4eCCrCrCDwE");
-  Play("4eCCrCrCDrEC3rAhG");
-  Play("5eEErErCErhG4hrGr");
-
- }
-
-}
-U0 AnimateTask()
-{
- while(TRUE){
-  if(jumpSoundActive){
-
-   music.tempo=32;
-   Play("e4DC#DD#EFF#GG#AA#B5CC#D"); //blocks here, which is fine in this thread
-   music.stacatto_factor = 1;
-   music.tempo=4;
-   jumpSoundActive = 0;
-
-  }
-
-  Yield;  // or Sleep(1) depending on your system
- }
-}
 U8 *WORLD_FILE = MStrPrint("%s%s",DirCur,"/Levels/World1-1.TXT");
 
 U0 MarioMain()
@@ -84,7 +26,7 @@ U0 MarioMain()
 
  while(TRUE){
   while(input = GetMsg(&arg1,&arg2,
-     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
   {
  
   switch(input)
@@ -95,7 +37,7 @@ U0 MarioMain()
      case 'a': case 'A': keyL = 1; break;
      case 'd': case 'D': keyR = 1; break;
      case 'w': case 'W': case ' ': keyJump = 1; break;
-     case CH_ESC: goto fs_end;
+     case CH_ESC: goto fs_end;
     }
 
     if(arg1 == 0){

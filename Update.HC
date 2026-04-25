@@ -106,6 +106,25 @@ I64 i;
   }
  }
 }
+Bool CheckTileSpanY(I64 tx, I64 top, I64 bottom)
+{
+ I64 ty;
+ for(ty = top; ty <= bottom; ty++){
+  if(IsSolidTile(tx, ty))
+   return TRUE;
+ }
+ return FALSE;
+}
+
+Bool CheckTileSpanX(I64 ty, I64 left, I64 right)
+{
+ I64 tx;
+ for(tx = left; tx <= right; tx++){
+  if(IsSolidTile(tx, ty))
+   return TRUE;
+ }
+ return FALSE;
+}
 
 U0 UpdateMario(){
 
@@ -202,14 +221,14 @@ if(mario.transforming){
  I64 bottom = WorldToTile(mario.y + MarioH() -1);
  // moving right
  if(mario.vx > 0){
-  if(IsSolidTile(right, top) || IsSolidTile(right, bottom)){
+  if(CheckTileSpanY(right, top, bottom)){
    mario.x = right * TILE_SIZE - MarioW();
    mario.vx = 0;
   }
  }
  // moving left
  else if(mario.vx < 0){
-  if(IsSolidTile(left, top) || IsSolidTile(left, bottom)){
+  if(CheckTileSpanY(left, top, bottom)){
    mario.x = (left + 1) * TILE_SIZE;
    mario.vx = 0;
   }
