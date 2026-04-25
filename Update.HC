@@ -109,28 +109,36 @@ I64 i;
 
 U0 UpdateMario(){
 
- if(mario.transforming){
+if(mario.transforming){
   mario.transformTimer--;
-
-  // toggle size every few frames (classic flicker effect)
-  if((mario.transformTimer / 4) % 2 == 0)
-   mario.isBig = 1;
-  else
-   mario.isBig = 0;
+  
+  I64 idx = (30 - mario.transformTimer) / 4;
+  if(idx > 6) idx = 6;
+  
+  U8 state = transformSeq[idx]; // 0,1,2
+  
+  I64 oldH = MarioH();
+  
+  if(state == 0) mario.isBig = MARIO_SMALL;
+  else if(state == 1) mario.isBig = MARIO_BIG;
+  else if(state == 2) mario.isBig = MARIO_MID;
+  
+  I64 newH = MarioH();
+  
+  if(newH != oldH){
+   I64 footY = mario.y + oldH;
+   mario.y = footY - newH;
+  } 
   
   if(mario.transformTimer <= 0){
    mario.transforming = 0;
-   if(!mario.isBig){
-    mario.isBig = 1; // final state
-    mario.y -= (MarioH());
-   }
+   mario.isBig = MARIO_BIG;
   }
-
-  // freeze movement during transform (optional but matches feel)
+  
   mario.vx = 0;
   mario.vy = 0;
- 
-  return; // skip rest of update
+  
+  return;
  }
 
  // --- Horizontal movement ---

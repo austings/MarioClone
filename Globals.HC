@@ -58,6 +58,11 @@ static CDC* MUSH= FramePtr("MUSH");
 #define DIR_R 1
 
 // States
+#define MARIO_SMALL 0
+#define MARIO_BIG   1
+#define MARIO_MID   2   // temporary
+#define MARIO_FIRE  3
+
 #define ST_IDLE  0
 #define ST_WALK  1
 #define ST_TURN  2
@@ -84,6 +89,9 @@ I64 jumpBuffer = 0;
 I64 grounded = 0;
 U8 jumpHeld = 0;
 U8 jumpSoundActive = 0;
+U8 transformSeq[7] = {
+ 0, 2, 0, 2, 1, 2, 1
+};
 
 class Mario{
  F64 x, y;
@@ -95,19 +103,19 @@ class Mario{
  I64 animTimer;
  I64 turnTimer;
  U8 turnDir;
- U8 transforming;     // NEW
- I64 transformTimer;  // NEW
+ U8 transforming;     
+ I64 transformTimer;  
 } mario;
 
 I64 MarioW()
 {
  return 24; // keep width same for now (simpler)
 }
-
 I64 MarioH()
 {
- if(mario.isBig) return 64; 
- return 32;
+ if(mario.isBig == MARIO_SMALL) return 32;
+ if(mario.isBig == MARIO_MID)   return 48;
+ return 64; // BIG + FIRE
 }
 
 class Coin {
@@ -137,7 +145,7 @@ U0 InitMario()
  mario.frame = 0;
  mario.animTimer = 0;
  mario.turnTimer = 0;
- mario.isBig = 0;
+ mario.isBig = MARIO_SMALL;
 }
 
 class Level {

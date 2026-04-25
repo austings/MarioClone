@@ -31,10 +31,15 @@ U0 DrawMushroom(CDC *dc)
 CDC* GetMarioSprite()
 {
  if(mario.transforming){
-  if(mario.dir == DIR_L)
-   return BL8;   // intermediate left
-  else
-   return BR8;   // intermediate right
+  I64 idx = (30 - mario.transformTimer) / 4;
+  if(idx > 6) idx = 6;
+  
+  U8 state = transformSeq[idx];
+  if(mario.transforming && mario.isBig == MARIO_MID){
+   if(mario.dir == DIR_L)
+    return BL8;
+   else return BR8;
+  }
  }
  mario.animTimer++;
 

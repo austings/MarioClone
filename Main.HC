@@ -84,7 +84,7 @@ U0 MarioMain()
 
  while(TRUE){
   while(input = GetMsg(&arg1,&arg2,
-     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
   {
  
   switch(input)
@@ -95,7 +95,7 @@ U0 MarioMain()
      case 'a': case 'A': keyL = 1; break;
      case 'd': case 'D': keyR = 1; break;
      case 'w': case 'W': case ' ': keyJump = 1; break;
-     case CH_ESC: goto fs_end;
+     case CH_ESC: goto fs_end;
     }
 
     if(arg1 == 0){
