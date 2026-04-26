@@ -41,7 +41,11 @@ static CDC* BR5= FramePtr("BR5");
 static CDC* BR6= FramePtr("BR6");
 static CDC* BR7= FramePtr("BR7");
 static CDC* BR8= FramePtr("BR8");
+static CDC* DIE= FramePtr("DIE");
 static CDC* MUSH= FramePtr("MUSH");
+static CDC* GOOM1= FramePtr("GOOM1");
+static CDC* GOOM2= FramePtr("GOOM2");
+static CDC* GOOM3= FramePtr("GOOM3");
 
 
 //Blocks
@@ -82,6 +86,8 @@ static CDC* MUSH= FramePtr("MUSH");
 #define TILE_SIZE 32
 #define MAX_COINS 32
 #define MAX_MUSHRM 16
+#define MAX_GOOMBAS 64
+
 //Globals TODO: make object?
 U8 keyL, keyR, keyJump;
 I64 camX;
@@ -92,6 +98,9 @@ Bool jumpSoundActive = 0;
 Bool coinSoundActive = 0;
 Bool powerUpSoundActive = 0;
 Bool powerUpAppearSoundActive = 0;
+Bool dyingSoundActive = 0;
+Bool stompSoundActive = 0;
+Bool shrinkSoundActive = 0;
 U8 transformSeq[7] = {
  0, 2, 0, 2, 1, 2, 1
 };
@@ -107,7 +116,12 @@ class Mario{
  I64 turnTimer;
  U8 turnDir;
  U8 transforming;     
- I64 transformTimer;  
+ I64 transformTimer;
+ Bool shrinking; 
+ Bool dying;
+ I64 deathTimer;
+ I64 invulnTimer;
+ Bool invulnFlash;
 } mario;
 
 I64 MarioW()
@@ -136,6 +150,13 @@ class Mushroom {
 } mush[MAX_MUSHRM];
 
 
+class Goomba {
+ I64 x, y;
+ I64 vx, vy;
+ Bool active;
+ Bool crushed;
+ I64 animTimer;
+} goombas[MAX_GOOMBAS];
 
 U0 InitMario()
 {

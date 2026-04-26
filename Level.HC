@@ -49,6 +49,7 @@ I64 CharToTile(U8 c)
   case '!': return TILE_Q_MUSHRM; // mushroom block
   case '.': return 0; // empty
   case 'P': return 0; // player spawn (handled separately)
+  case 'G': return 0; // goomba
  }
  return 0;
 }
@@ -83,7 +84,7 @@ Level *LoadLevel(U8 *path)
 
    lvl->w = Str2I64(wptr);
    lvl->h = Str2I64(hptr);
-   lvl->tiles = MAlloc(lvl->w * lvl->h);
+   lvl->tiles = MAlloc(lvl->w * lvl->h);
    goto next;
   }
 
@@ -110,6 +111,11 @@ Level *LoadLevel(U8 *path)
      mario.x = x * 32;
      mario.y = y * 32;
     }
+    
+    if(ln[x] == 'G'){
+     SpawnGoomba(x, y);
+
+    }
    }
    y++;
   }
@@ -124,12 +130,9 @@ Level *LoadLevel(U8 *path)
    x = Str2I64(xptr);
    y = Str2I64(yptr);
 
-   if(!StrEqual(type,"GOOMBA")){
-    //SpawnGoomba(x, y);
-   }
-   else if(!StrEqual(type,"PIPE")){
+  // else if(!StrEqual(type,"PIPE")){
     //SpawnPipe(x, y);
-   }
+  // }
   }
 
   next:
@@ -147,3 +150,16 @@ Level *LoadLevel(U8 *path)
  return lvl;
 }
 
+U0 RestartLevel()
+{
+ // reload level or reset state
+
+ mario.dying = 0;
+ mario.transforming = 0;
+
+ // simplest: reload level file
+ clvl = LoadLevel("level1.txt");
+
+ // reset camera
+ camX = 0;
+}

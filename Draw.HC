@@ -27,9 +27,45 @@ U0 DrawMushroom(CDC *dc)
   next:
  }
 }
+U0 DrawGoombas(CDC *dc)
+{
+ I64 i;
+ for(i = 0; i < MAX_GOOMBAS; i++){
+  if(!goombas[i].active) goto skipGoomba;
+
+  CDC* spr;
+
+  if(goombas[i].crushed){
+   spr = GOOM3;
+  }
+  else{
+   I64 f = (goombas[i].animTimer++ / 10) % 2;
+   if(f==0)
+    spr = GOOM1;
+   else
+    spr = GOOM2;
+  }
+
+  GrBlot3(dc, goombas[i].x - camX, goombas[i].y, 0, spr);
+  skipGoomba:
+ }
+ if(!mario.dying)
+  CheckGoombaMario();
+}
 
 CDC* GetMarioSprite()
 {
+ if(mario.dying){
+  return DIE;
+ 
+}
+ if(mario.invulnTimer > 0){
+  // simple flicker: skip drawing every few frames
+  if((mario.invulnTimer / 4) % 2 == 0){
+   return NULL; // don't draw this frame
+  }
+ }
+
  if(mario.transforming){
   I64 idx = (30 - mario.transformTimer) / 4;
   if(idx > 6) idx = 6;
@@ -37,7 +73,7 @@ CDC* GetMarioSprite()
   U8 state = transformSeq[idx];
   if(mario.transforming && mario.isBig == MARIO_MID){
    if(mario.dir == DIR_L)
-    return BL8;
+    return BL8;
    else return BR8;
   }
  }
@@ -113,7 +149,7 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
 
  DrawCoins(dc);
  DrawMushroom(dc);
-
+ DrawGoombas(dc);
  // --- Draw level tiles ---
  for(y = 0; y < clvl->h; y++){
   for(x = startX; x < endX; x++){
@@ -154,11 +190,13 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
    }
   }
  }
+ UpdateGoombas();
  UpdateTileBounce();
  UpdateCoins();
  UpdateMushroom();  
  UpdateMario();
  CDC* player = GetMarioSprite();
- GrBlot3(dc,mario.x -camX,mario.y,0,player);
+ if(player)
+  GrBlot3(dc,mario.x -camX,mario.y,0,player);
 }
 

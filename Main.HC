@@ -1,7 +1,7 @@
 #include "Wad.HC";
 #include "Globals.HC";
-#include "Level.HC";
 #include "Spawn.HC";
+#include "Level.HC";
 #include "Game.HC";
 #include "Update.HC";
 #include "Draw.HC";
@@ -9,6 +9,13 @@
 
 U8 *WORLD_FILE = MStrPrint("%s%s",DirCur,"/Levels/World1-1.TXT");
 
+U0 FreeEverything(CDC *dc, Level *lvl){
+ DCDel(dc);
+ Free(lvl->tileState);
+ Free(lvl->tileBounce);
+ Free(lvl->tileBounceVel);
+
+}
 U0 MarioMain()
 {
  CDC *dc = DCAlias;
@@ -26,9 +33,8 @@ U0 MarioMain()
 
  while(TRUE){
   while(input = GetMsg(&arg1,&arg2,
-     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
-  {
- 
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+  { 
   switch(input)
   {
    case MSG_KEY_DOWN:
@@ -48,11 +54,10 @@ U0 MarioMain()
      }
     }
    break;
-
    case MSG_KEY_UP:
     switch(arg1)
     {
-     case 'a': case 'A': keyL = 0; break;
+     case 'a': case 'A': keyL = 0; break;
      case 'd': case 'D': keyR = 0; break;
      case 'w': case 'W': case ' ': keyJump = 0; break;
     }
@@ -73,8 +78,8 @@ U0 MarioMain()
 }
 
 fs_end:
- DCDel(dc);
+ FreeEverything(dc, clvl);
  SettingsPop;
 }
 
-MarioMain;
+MarioMain;$SY,3$

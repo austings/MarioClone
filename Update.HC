@@ -16,6 +16,73 @@ U0 UpdateCoins()
  }
 }
 
+U0 UpdateGoombas()
+{
+ I64 i;
+ for(i = 0; i < MAX_GOOMBAS; i++){
+  if(!goombas[i].active) goto next;
+
+  // crushed state
+  if(goombas[i].crushed){
+   goombas[i].animTimer--;
+   if(goombas[i].animTimer <= 0){
+    goombas[i].active = 0;
+   }
+   goto next;
+  }
+
+  // gravity
+  goombas[i].vy += GRAVITY;
+  if(goombas[i].vy > MAX_FALL)
+   goombas[i].vy = MAX_FALL;
+
+  // horizontal move
+  goombas[i].x += goombas[i].vx;
+
+  I64 left   = WorldToTile(goombas[i].x);
+  I64 right  = WorldToTile(goombas[i].x + 31);
+  I64 top    = WorldToTile(goombas[i].y);
+  I64 bottom = WorldToTile(goombas[i].y + 31);
+
+  // wall bounce
+  if(goombas[i].vx > 0){
+   if(IsSolidTile(right, top) || IsSolidTile(right, bottom)){
+    goombas[i].x = right * TILE_SIZE - 32;
+    goombas[i].vx = -goombas[i].vx;
+   }
+  }
+  else{
+   if(IsSolidTile(left, top) || IsSolidTile(left, bottom)){
+    goombas[i].x = (left + 1) * TILE_SIZE;
+    goombas[i].vx = -goombas[i].vx;
+   }
+  }
+
+  // vertical move
+  goombas[i].y += goombas[i].vy;
+
+  left   = WorldToTile(goombas[i].x);
+  right  = WorldToTile(goombas[i].x + 31);
+  top    = WorldToTile(goombas[i].y);
+  bottom = WorldToTile(goombas[i].y + 31);
+
+  if(goombas[i].vy > 0){
+   if(IsSolidTile(left, bottom) || IsSolidTile(right, bottom)){
+    goombas[i].y = bottom * TILE_SIZE - 32;
+    goombas[i].vy = 0;
+   }
+  }
+  else if(goombas[i].vy < 0){
+   if(IsSolidTile(left, top) || IsSolidTile(right, top)){
+    goombas[i].y = (top + 1) * TILE_SIZE;
+    goombas[i].vy = 0;
+   }
+  }
+
+  next:
+ }
+}
+
 U0 UpdateMushroom()
 {
  I64 i;
@@ -128,12 +195,37 @@ Bool CheckTileSpanX(I64 ty, I64 left, I64 right)
 
 U0 UpdateMario(){
 
-if(mario.transforming){
+ if(mario.dying){
+
+  mario.deathTimer--;
+
+  // gravity still applies
+  mario.vy += GRAVITY;
+  if(mario.vy > MAX_FALL)
+   mario.vy = MAX_FALL;
+
+  mario.y += mario.vy;
+ 
+  if(mario.deathTimer <= 0){
+   RestartLevel(); // todo implement this
+  }
+ 
+  return;
+ }
+
+ if(mario.invulnTimer > 0){
+  mario.invulnTimer--;
+ }
+ 
+ if(mario.transforming){
   mario.transformTimer--;
   
   I64 idx = (30 - mario.transformTimer) / 4;
   if(idx > 6) idx = 6;
-  
+
+  if(mario.shrinking){
+   idx = 6 - idx; // reverse traversal
+  }  
   U8 state = transformSeq[idx]; // 0,1,2
   
   I64 oldH = MarioH();
@@ -147,12 +239,16 @@ if(mario.transforming){
   if(newH != oldH){
    I64 footY = mario.y + oldH;
    mario.y = footY - newH;
-  } 
-  
+  }
+ 
   if(mario.transformTimer <= 0){
    mario.transforming = 0;
-   mario.isBig = MARIO_BIG;
-  }
+
+   if(mario.shrinking)
+    mario.isBig = MARIO_SMALL;
+   else
+    mario.isBig = MARIO_BIG;
+  }  
   
   mario.vx = 0;
   mario.vy = 0;
