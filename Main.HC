@@ -20,10 +20,10 @@ U0 MarioMain()
 {
  CDC *dc = DCAlias;
  I64 arg1, arg2;
- U8 input;
+ I64 input;
 
  SettingsPush; WinMax; WinBorder;
- DocCursor; DocClear;
+ DocCursor; DocClear; AutoComplete(0);
 
  InitMario();
  clvl = LoadLevel(WORLD_FILE);
@@ -57,7 +57,7 @@ U0 MarioMain()
    case MSG_KEY_UP:
     switch(arg1)
     {
-     case 'a': case 'A': keyL = 0; break;
+     case 'a': case 'A': keyL = 0; break;
      case 'd': case 'D': keyR = 0; break;
      case 'w': case 'W': case ' ': keyJump = 0; break;
     }

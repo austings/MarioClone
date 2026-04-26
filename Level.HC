@@ -123,7 +123,7 @@ Level *LoadLevel(U8 *path)
   // --- OBJECT PARSING ---
   else if(mode == 2){
    U8 type[16], xs[8], ys[8];
-   U8 *tagptr=type,*xptr=xs,*yptr=ys;
+   *tptr=type,*xptr=xs,*yptr=ys;
 
    StrScan(ln,"%s %s %s",&tptr,&xptr,&yptr);
 

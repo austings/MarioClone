@@ -133,7 +133,7 @@ U0 HandleBlockHit(I64 tx, I64 ty)
   return;
 
  I64 idx = ty * clvl->w + tx;
- U8 t = clvl->tiles[idx];
+ I64 t = clvl->tiles[idx];
 
  // only handle ? blocks
  if((t==TILE_Q_MUSHRM)
