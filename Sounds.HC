@@ -23,7 +23,7 @@ U0 SongTask()
   music.stacatto_factor = 1;
 
 // WaitForSilence; Play("5eE5Er5Er5C5Erh5G4hrGr");
-WaitForSilence; Play("5eE"); WaitForSilence; Play("5eE"); WaitForSilence; Play("5er"); WaitForSilence; Play("5eE"); WaitForSilence; Play("5er"); WaitForSilence; Play("5eC"); WaitForSilence; Play("5eE"); WaitForSilence; Play("5hG"); WaitForSilence; Play("4hr"); WaitForSilence; Play("4hG"); WaitForSilence; Play("4hr"); WaitForSilence; Play("4hG");
+WaitForSilence; Play("5eE"); WaitForSilence; Play("5eE"); WaitForSilence; Play("5er"); WaitForSilence; Play("5eE"); WaitForSilence; Play("5er"); WaitForSilence; Play("5eC"); WaitForSilence; Play("5eE"); WaitForSilence; Play("5hG"); WaitForSilence; Play("4hr"); WaitForSilence; Play("4hG"); WaitForSilence; Play("4hr"); WaitForSilence; Play("4hG");
 
 // WaitForSilence; Play("q5Cr4GrErArBrB#Ar");
 WaitForSilence; Play("5qC"); WaitForSilence; Play("5er"); WaitForSilence; Play("4eG"); WaitForSilence; Play("4er"); WaitForSilence; Play("4eE"); WaitForSilence; Play("4er"); WaitForSilence; Play("4eA"); WaitForSilence; Play("4er"); WaitForSilence; Play("4eB"); WaitForSilence; Play("4er"); WaitForSilence; Play("4eB#"); WaitForSilence; Play("4er"); WaitForSilence; Play("4eA");

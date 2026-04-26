@@ -27,16 +27,16 @@ CDC* DCFlippedX(CDC* src){
 CDC *DCScaled(CDC* src, F64 scale_x, F64 scale_y) {
     if (scale_x <= 0 || scale_y <= 0) return NULL;
 
-    I64 new_width = (I64)(src->width * scale_x);
-    I64 new_height = (I64)(src->height * scale_y);
+    I64 new_width = (src->width * scale_x);
+    I64 new_height = (src->height * scale_y);
     CDC* dst = DCNew(new_width, new_height);
 
     I64 x, y;
     for (y = 0; y < new_height; y++) {
         for (x = 0; x < new_width; x++) {
             // Nearest-neighbor scaling
-            I64 src_x = (I64)(x / scale_x);
-            I64 src_y = (I64)(y / scale_y);
+            I64 src_x = (x / scale_x);
+            I64 src_y = (y / scale_y);
 
             // Clamp to source bounds
             if (src_x >= src->width) src_x = src->width - 1;
@@ -442,7 +442,7 @@ CWad *LoadWad(U8 *filename) {
   return FileRead(filename);
 
 }
-static CWad *wad=LoadWad("SMB.WAD");
+static CWad *wad=LoadWad("SMB.WAD");
 
 class CWadDirectory {
   U32 ptr;
