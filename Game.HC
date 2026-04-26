@@ -1,5 +1,4 @@
-U0 DamageMario()
-{
+U0 DamageMario(){
  // ignore if already dying or transforming (prevents double hits)
  if(mario.dying || mario.transforming|| mario.invulnTimer > 0)
   return;
@@ -10,6 +9,7 @@ U0 DamageMario()
   mario.transforming = 1;
   mario.transformTimer = 30;
   mario.shrinking = 1;
+  shrinkSoundActive = TRUE;
   mario.invulnTimer = 120; // 90 = ~1.5 seconds at 60fps
   mario.isBig = MARIO_BIG; // start state
   // your transformSeq should already step down if reused correctly
@@ -60,6 +60,8 @@ U0 CheckGoombaMario()
  I64 marioBottom     = mario.y + MarioH();
  I64 marioPrevBottom = marioBottom - mario.vy;
  I64 marioCenter     = mario.x + MarioW()/2;
+ I64 marioLeft  = mario.x;
+ I64 marioRight = mario.x + MarioW();
 
  Goomba *stompTarget = NULL;
 
@@ -78,17 +80,27 @@ U0 CheckGoombaMario()
   if(mario.y > goombas[i].y + 32)       goto nextGoomba;
 
   // --- stomp test (position + horizontal tolerance) ---
-  I64 goombaTop    = goombas[i].y;
+  I64 goombaTop    = goombas[i].y;
   I64 goombaCenter = goombas[i].x + 16;
+  I64 goombaLeft  = goombas[i].x;
+  I64 goombaRight = goombas[i].x + 32;
 
-  I64 dx = marioCenter - goombaCenter;
-  if(dx < 0) dx = -dx;
-
+  // compute min(right edges)
+  I64 rightEdge = marioRight;
+  if(goombaRight < rightEdge)
+   rightEdge = goombaRight;
+  
+  // compute max(left edges)
+  I64 leftEdge = marioLeft;
+  if(goombaLeft > leftEdge)
+   leftEdge = goombaLeft;
+   
+  // overlap width
+  I64 overlap = rightEdge - leftEdge;
   Bool fromAbove =
-   (marioPrevBottom <= goombaTop + 6) && // was above
-   (marioBottom     >= goombaTop)   &&   // now intersecting
-   (dx < 20);                            // allow angled stomp
-
+   (marioPrevBottom <= goombaTop + 8) &&  // slightly more forgiving
+   (marioBottom     >= goombaTop)     &&  // crossed top
+   (overlap > 6);                         // require minimal foot contact
   if(fromAbove){
    // pick highest valid stomp
    if(!stompTarget || goombas[i].y < stompTarget->y){
@@ -104,7 +116,7 @@ U0 CheckGoombaMario()
  if(stompTarget){
   stompTarget->crushed = 1;
   stompTarget->animTimer = 20;
-
+  stompSoundActive=TRUE;
   // stronger bounce, clears nearby enemies
   mario.vy = -10;
 

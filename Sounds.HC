@@ -1,4 +1,3 @@
-//test
 Bool AnySoundActive()
 {
  return jumpSoundActive ||
@@ -150,8 +149,18 @@ U0 AnimateTask()
   } else if(dyingSoundActive){
    music.tempo = 2.5;  
    Play("4eA#Grr2G4BB5F3GAB4CqG#3B1Cq2C");
-   music.tempo=4;
+   music.tempo=4;
    dyingSoundActive = 0;
+  } else if(stompSoundActive){
+   music.tempo =12;
+   Play("4eB5CC#DGG#AA#");
+   music.tempo = 4;
+   stompSoundActive = 0;
+  } else if(shrinkSoundActive){
+   music.tempo  = 10;
+   Play("4eAGECrAGECrAGEC");
+   music.tempo = 4;
+   shrinkSoundActive = 0;
   }
 
   Yield;  
