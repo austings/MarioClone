@@ -5,14 +5,14 @@ U0 DamageMario(){
 
  // --- BIG -> SMALL ---
  if(mario.isBig != MARIO_SMALL){
-  // reuse your transform system (this is correct architecture)
+  // reuse transform system (this is correct architecture)
   mario.transforming = 1;
   mario.transformTimer = 30;
   mario.shrinking = 1;
   shrinkSoundActive = TRUE;
   mario.invulnTimer = 120; // 90 = ~1.5 seconds at 60fps
   mario.isBig = MARIO_BIG; // start state
-  // your transformSeq should already step down if reused correctly
+  //transformSeq should already step down if reused correctly
 
   return;
  }
@@ -186,6 +186,27 @@ U0 HandleBlockHit(I64 tx, I64 ty)
    clvl->tileBounceVel[idx] = 0;
    SpawnBrickParticles(tx,ty);
   }
+ }
+ I64 hitX = tx * TILE_SIZE;
+ I64 hitY = (ty - 1) * TILE_SIZE;
+
+ I64 i;
+ for(i = 0; i < MAX_MUSHRM; i++){
+  if(!mush[i].active) goto nextMush;
+  
+  // ignore emerging mushrooms (important)
+  if(mush[i].rising) goto nextMush;
+  
+  if(AABBOverlap(
+    mush[i].x, mush[i].y, 32, 32,
+    hitX, hitY, TILE_SIZE, TILE_SIZE))
+  {
+   mush[i].vx = -mush[i].vx;  // reverse direction
+   
+   // optional: small pop so it feels like impact
+   mush[i].vy = -4;
+  }
+  nextMush:
  }
 }
 

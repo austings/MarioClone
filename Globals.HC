@@ -131,7 +131,7 @@ class Mario{
 
 I64 MarioW()
 {
- return 24; // keep width same for now (simpler)
+ return 30; // keep width same for now (simpler)
 }
 I64 MarioH()
 {
@@ -196,7 +196,7 @@ Level *clvl;
 
 Bool IsSolidTile(I64 tx, I64 ty)
 {
- if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
+ if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
   return FALSE;
 
  return clvl->tiles[ty * clvl->w + tx] >= 1;

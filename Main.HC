@@ -14,8 +14,8 @@ U0 FreeEverything(CDC *dc, Level *lvl){
  Free(lvl->tileState);
  Free(lvl->tileBounce);
  Free(lvl->tileBounceVel);
-
 }
+
 U0 MarioMain()
 {
  CDC *dc = DCAlias;
@@ -33,7 +33,7 @@ U0 MarioMain()
 
  while(TRUE){
   while(input = GetMsg(&arg1,&arg2,
-     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
   { 
   switch(input)
   {
@@ -57,7 +57,7 @@ U0 MarioMain()
    case MSG_KEY_UP:
     switch(arg1)
     {
-     case 'a': case 'A': keyL = 0; break;
+     case 'a': case 'A': keyL = 0; break;
      case 'd': case 'D': keyR = 0; break;
      case 'w': case 'W': case ' ': keyJump = 0; break;
     }

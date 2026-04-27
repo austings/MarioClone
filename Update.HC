@@ -220,7 +220,7 @@ U0 UpdateMario(){
  if(mario.transforming){
   mario.transformTimer--;
   
-  I64 idx = (30 - mario.transformTimer) / 4;
+  I64 idx = (30 - mario.transformTimer) / 4;
   if(idx > 6) idx = 6;
 
   if(mario.shrinking){
@@ -312,7 +312,7 @@ U0 UpdateMario(){
 
  // --- vertical collision ---
  I64 left   = WorldToTile(mario.x);
- I64 right  = WorldToTile(mario.x + MarioW() -1);
+ I64 right  = WorldToTile(mario.x + MarioW() -1);
  I64 top    = WorldToTile(mario.y);
  I64 bottom = WorldToTile(mario.y + MarioH() -1);
  // moving right
