@@ -1,10 +1,10 @@
 Bool AnySoundActive()
 {
- return jumpSoundActive ||
+ return jumpSoundActive || brickSoundActive ||
         coinSoundActive ||
         powerUpSoundActive ||
-        powerUpAppearSoundActive ||
-        dyingSoundActive;
+        powerUpAppearSoundActive || shrinkSoundActive ||
+        dyingSoundActive || stompSoundActive;
 }
 U0 WaitForSilence()
 {
@@ -149,7 +149,7 @@ U0 AnimateTask()
   } else if(dyingSoundActive){
    music.tempo = 2.5;  
    Play("4eA#Grr2G4BB5F3GAB4CqG#3B1Cq2C");
-   music.tempo=4;
+   music.tempo=4;
    dyingSoundActive = 0;
   } else if(stompSoundActive){
    music.tempo =12;
@@ -161,6 +161,11 @@ U0 AnimateTask()
    Play("4eAGECrAGECrAGEC");
    music.tempo = 4;
    shrinkSoundActive = 0;
+  } else if(brickSoundActive){
+   music.tempo  = 20;
+   Play("2D#DC#C1A#GFE3D#DC#C2A#GFE");
+   music.tempo = 4;
+   brickSoundActive = 0;
   }
 
   Yield;  

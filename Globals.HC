@@ -41,6 +41,10 @@ static CDC* BR5= FramePtr("BR5");
 static CDC* BR6= FramePtr("BR6");
 static CDC* BR7= FramePtr("BR7");
 static CDC* BR8= FramePtr("BR8");
+static CDC* PI1= FramePtr("PI1");
+static CDC* PI2= FramePtr("PI2");
+static CDC* PI3= FramePtr("PI3");
+static CDC* PI4= FramePtr("PI4");
 static CDC* DIE= FramePtr("DIE");
 static CDC* MUSH= FramePtr("MUSH");
 static CDC* GOOM1= FramePtr("GOOM1");
@@ -54,6 +58,10 @@ static CDC* BROK2= FramePtr("BROK2");
 #define TILE_BRICK	2
 #define TILE_QUESTION	3
 #define TILE_Q_MUSHRM	4
+#define TILE_PIPE1      5
+#define TILE_PIPE2      6
+#define TILE_PIPE3      7
+#define TILE_PIPE4      8
 
 #define SCREEN_W 640   
 #define CAMERA_MARGIN 320
@@ -131,7 +139,7 @@ class Mario{
 
 I64 MarioW()
 {
- return 30; // keep width same for now (simpler)
+ return 24; // keep width same for now (simpler)
 }
 I64 MarioH()
 {

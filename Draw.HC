@@ -66,7 +66,7 @@ U0 DrawBrickParticles(CDC *dc)
 
   CDC* spr;
 
-  if(phase == 0){ // BROK1
+  if(phase == 0){ // BROK1
     spr= BROK1;
   } else {           // BROK2
     spr=BROK2;
@@ -210,6 +210,18 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
       GrBlot3(dc, x*32 - camX, y*32 +by, 0, Q4);
      }
     }
+    break;
+   case TILE_PIPE1:
+    GrBlot3(dc, x*32 - camX, y*32, 0, PI1);
+    break;
+   case TILE_PIPE2:    
+    GrBlot3(dc, x*32 - camX, y*32, 0, PI2);
+    break;
+   case TILE_PIPE3:
+    GrBlot3(dc, x*32 - camX, y*32, 0, PI3);
+    break;
+   case TILE_PIPE4:
+    GrBlot3(dc, x*32 - camX, y*32, 0, PI4);
     break;
    }
   }

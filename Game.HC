@@ -5,7 +5,7 @@ U0 DamageMario(){
 
  // --- BIG -> SMALL ---
  if(mario.isBig != MARIO_SMALL){
-  // reuse transform system (this is correct architecture)
+  // reuse transform system (this is correct architecture)
   mario.transforming = 1;
   mario.transformTimer = 30;
   mario.shrinking = 1;
@@ -185,6 +185,7 @@ U0 HandleBlockHit(I64 tx, I64 ty)
    clvl->tileBounce[idx] = 0;
    clvl->tileBounceVel[idx] = 0;
    SpawnBrickParticles(tx,ty);
+   brickSoundActive = TRUE;
   }
  }
  I64 hitX = tx * TILE_SIZE;

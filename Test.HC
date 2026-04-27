@@ -1,7 +1,7 @@
 
-   music.tempo  = 10;
-   Play("4eAGECrAGECrAGEC");
-// music.tempo = 2.5;  
+   music.tempo  = 20;
+   Play("2D#DC#C1A#GFE3D#DC#C2A#GFE");
+// music.tempo = 2.5;  
 // Play("4eA#Grr2G4BB5F3GAB4CqG#3B1Cq2C");
 
 //   music.tempo=11;

@@ -47,6 +47,10 @@ I64 CharToTile(U8 c)
   case '%': return TILE_BRICK; // brick
   case '?': return TILE_QUESTION; // ? block
   case '!': return TILE_Q_MUSHRM; // mushroom block
+  case '[': return TILE_PIPE1;
+  case ']': return TILE_PIPE2;
+  case '(': return TILE_PIPE3;
+  case ')': return TILE_PIPE4;
   case '.': return 0; // empty
   case 'P': return 0; // player spawn (handled separately)
   case 'G': return 0; // goomba
@@ -107,33 +111,30 @@ Level *LoadLevel(U8 *path)
    for(x = 0; x < lvl->w && ln[x] != 0; x++){
     lvl->tiles[y * lvl->w + x] = CharToTile(ln[x]);
 
-    if(ln[x] == 'P'){
-     mario.x = x * 32;
-     mario.y = y * 32;
-    }
-    
-    if(ln[x] == 'G'){
-     SpawnGoomba(x, y);
-
+    switch(ln[x]){
+     case 'P':
+      mario.x = x * 32;
+      mario.y = y * 32;
+     break;
+     case 'G':
+      SpawnGoomba(x, y);
+     break;
     }
    }
    y++;
   }
-
   // --- OBJECT PARSING ---
   else if(mode == 2){
    U8 type[16], xs[8], ys[8];
    *tptr=type;
-   I64 *xptr=xs,*yptr=ys;
+   I64 *xptr=xs,*yptr=ys;
 
    StrScan(ln,"%s %s %s",&tptr,&xptr,&yptr);
 
    x = Str2I64(xptr);
    y = Str2I64(yptr);
 
-  // else if(!StrEqual(type,"PIPE")){
-    //SpawnPipe(x, y);
-  // }
+   y++;
   }
 
   next:
