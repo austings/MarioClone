@@ -25,7 +25,7 @@ CDC* DCFlippedX(CDC* src){
 }
 
 CDC *DCScaled(CDC* src, F64 scale_x, F64 scale_y) {
-    if (scale_x <= 0 || scale_y <= 0) return NULL;
+    if (scale_x <= 0 || scale_y <= 0) return NULL;
 
     I64 new_width = (src->width * scale_x);
     I64 new_height = (src->height * scale_y);

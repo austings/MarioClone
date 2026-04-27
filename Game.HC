@@ -80,7 +80,7 @@ U0 CheckGoombaMario()
   if(mario.y > goombas[i].y + 32)       goto nextGoomba;
 
   // --- stomp test (position + horizontal tolerance) ---
-  I64 goombaTop    = goombas[i].y;
+  I64 goombaTop    = goombas[i].y;
   I64 goombaCenter = goombas[i].x + 16;
   I64 goombaLeft  = goombas[i].x;
   I64 goombaRight = goombas[i].x + 32;
@@ -178,14 +178,13 @@ U0 HandleBlockHit(I64 tx, I64 ty)
     clvl->tileBounceVel[idx] = -4;
   }
   else{
-    // big Mario placeholder for break logic
-    // for now just bounce so can verify
-    clvl->tileBounce[idx] = 0;
-    clvl->tileBounceVel[idx] = -4;
-
-    // later:
-    // clvl->tiles[idx] = 0;
-    // SpawnBrickParticles(...)
+   // destroy brick
+   clvl->tiles[idx] = 0;
+   
+   // stop any bounce state
+   clvl->tileBounce[idx] = 0;
+   clvl->tileBounceVel[idx] = 0;
+   SpawnBrickParticles(tx,ty);
   }
  }
 }

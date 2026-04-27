@@ -194,7 +194,7 @@ Bool CheckTileSpanX(I64 ty, I64 left, I64 right)
 }
 
 U0 UpdateMario(){
-
+ globalTimer++;
  if(mario.dying){
 
   mario.deathTimer--;
@@ -220,7 +220,7 @@ U0 UpdateMario(){
  if(mario.transforming){
   mario.transformTimer--;
   
-  I64 idx = (30 - mario.transformTimer) / 4;
+  I64 idx = (30 - mario.transformTimer) / 4;
   if(idx > 6) idx = 6;
 
   if(mario.shrinking){
@@ -433,3 +433,25 @@ U0 UpdateMario(){
  if(camX > maxCam) camX = maxCam;
 }
 
+U0 UpdateBrickParticles()
+{
+ I64 i;
+ for(i = 0; i < 32; i++){
+  if(!brickParts[i].active) goto next;
+
+  brickParts[i].x += brickParts[i].vx;
+
+  brickParts[i].vy += GRAVITY;
+  if(brickParts[i].vy > MAX_FALL)
+   brickParts[i].vy = MAX_FALL;
+
+  brickParts[i].y += brickParts[i].vy;
+
+  brickParts[i].timer--;
+  if(brickParts[i].timer <= 0){
+   brickParts[i].active = 0;
+  }
+
+  next:
+ }
+}

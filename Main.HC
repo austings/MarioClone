@@ -29,7 +29,7 @@ U0 MarioMain()
  clvl = LoadLevel(WORLD_FILE);
  Fs->draw_it = &DrawMarioGame;
  Fs->song_task=Spawn(&SongTask,Fs);
- Fs->animate_task=Spawn(&AnimateTask,Fs);
+ Fs->animate_task=Spawn(&AnimateTask,Fs);
 
  while(TRUE){
   while(input = GetMsg(&arg1,&arg2,
@@ -57,7 +57,7 @@ U0 MarioMain()
    case MSG_KEY_UP:
     switch(arg1)
     {
-     case 'a': case 'A': keyL = 0; break;
+     case 'a': case 'A': keyL = 0; break;
      case 'd': case 'D': keyR = 0; break;
      case 'w': case 'W': case ' ': keyJump = 0; break;
     }

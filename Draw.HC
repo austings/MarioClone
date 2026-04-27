@@ -53,6 +53,31 @@ U0 DrawGoombas(CDC *dc)
   CheckGoombaMario();
 }
 
+U0 DrawBrickParticles(CDC *dc)
+{
+ I64 i;
+ for(i = 0; i < 32; i++){
+  if(!brickParts[i].active) goto next;
+
+  BrickParticle *p = &brickParts[i];
+
+  // phase toggles every ~30 frames
+  I64 phase = (globalTimer / 10) % 2;
+
+  CDC* spr;
+
+  if(phase == 0){ // BROK1
+    spr= BROK1;
+  } else {           // BROK2
+    spr=BROK2;
+  }
+
+  GrBlot3(dc, p->x - camX, p->y, 0, spr);
+
+  next:
+ }
+}
+
 CDC* GetMarioSprite()
 {
  if(mario.dying){
@@ -146,7 +171,6 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
  dc->color = BLUE;
  GrRect(dc,0,0,640,480);
  GrBlot3(dc,0,96,0,SPRITEBG);
-
  DrawCoins(dc);
  DrawMushroom(dc);
  DrawGoombas(dc);
@@ -190,6 +214,8 @@ U0 DrawMarioGame(CTask *task, CDC *dc)
    }
   }
  }
+ DrawBrickParticles(dc);
+ UpdateBrickParticles();
  UpdateGoombas();
  UpdateTileBounce();
  UpdateCoins();

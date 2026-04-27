@@ -46,7 +46,8 @@ static CDC* MUSH= FramePtr("MUSH");
 static CDC* GOOM1= FramePtr("GOOM1");
 static CDC* GOOM2= FramePtr("GOOM2");
 static CDC* GOOM3= FramePtr("GOOM3");
-
+static CDC* BROK1= FramePtr("BROK1");
+static CDC* BROK2= FramePtr("BROK2");
 
 //Blocks
 #define TILE_GROUND	1
@@ -87,9 +88,11 @@ static CDC* GOOM3= FramePtr("GOOM3");
 #define MAX_COINS 32
 #define MAX_MUSHRM 16
 #define MAX_GOOMBAS 64
+#define MAX_PARTICLES 16
 
 //Globals TODO: make object?
 U8 keyL, keyR, keyJump;
+I64 globalTimer = 0;
 I64 camX;
 I64 jumpBuffer = 0;
 I64 grounded = 0;
@@ -98,9 +101,11 @@ Bool jumpSoundActive = 0;
 Bool coinSoundActive = 0;
 Bool powerUpSoundActive = 0;
 Bool powerUpAppearSoundActive = 0;
-Bool dyingSoundActive = 0;
+Bool dyingSoundActive = 0;
 Bool stompSoundActive = 0;
 Bool shrinkSoundActive = 0;
+Bool brickSoundActive = 0;
+
 U8 transformSeq[7] = {
  0, 2, 0, 2, 1, 2, 1
 };
@@ -149,7 +154,6 @@ class Mushroom {
  U8 rising;
 } mush[MAX_MUSHRM];
 
-
 class Goomba {
  I64 x, y;
  I64 vx, vy;
@@ -157,6 +161,14 @@ class Goomba {
  Bool crushed;
  I64 animTimer;
 } goombas[MAX_GOOMBAS];
+
+class BrickParticle {
+  I64 x, y;
+  I64 vx, vy;
+  I64 timer;
+  U8 active;
+  U8 type;
+} brickParts[MAX_PARTICLES];
 
 U0 InitMario()
 {
@@ -184,7 +196,7 @@ Level *clvl;
 
 Bool IsSolidTile(I64 tx, I64 ty)
 {
- if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
+ if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)
   return FALSE;
 
  return clvl->tiles[ty * clvl->w + tx] >= 1;
