@@ -53,92 +53,111 @@ U0 CheckMushroomPickup()
   next:
  }
 }
+
+
 U0 CheckGoombaMario()
 {
- I64 i;
+  I64 i;
+  // --- mario bounds ---
+  I64 marioLeft       = mario.x;
+  I64 marioRight      = mario.x + MarioW();
+  I64 marioTop        = mario.y;
+  I64 marioBottom     = mario.y + MarioH();
+  I64 marioPrevBottom = mario.prevY + MarioH();
 
- I64 marioBottom     = mario.y + MarioH();
- I64 marioPrevBottom = marioBottom - mario.vy;
- I64 marioCenter     = mario.x + MarioW()/2;
- I64 marioLeft  = mario.x;
- I64 marioRight = mario.x + MarioW();
+  Goomba *stompTarget = NULL;
 
- Goomba *stompTarget = NULL;
+  for(i = 0; i < MAX_GOOMBAS; i++){
+    Goomba *g = &goombas[i];
+    if(!g->active || g->crushed)
+      goto goon;
 
- for(i = 0; i < MAX_GOOMBAS; i++){
+    // -------------------------------------------------
+    // GOOMBA HITBOXES
+    // -------------------------------------------------
+    I64 bodyLeft   = g->x + 2;
+    I64 bodyRight  = g->x + 30;
+    I64 bodyTop    = g->y + 6;
+    I64 bodyBottom = g->y + 30;
 
-  if(!goombas[i].active || goombas[i].crushed)
-   goto nextGoomba;
+    // stomp zone: wider horizontally, anchored to bodyTop not sprite top
+    I64 stompLeft  = g->x + 4;
+    I64 stompRight = g->x + 28;
+    I64 stompTop   = bodyTop;     // FIX 1: was g->y, causing stomp zone to float above body
 
-  // --- slightly reduced hurtbox (prevents edge deaths) ---
-  I64 gx = goombas[i].x + 4;
-  I64 gw = 24;
+    // -------------------------------------------------
+    // BROAD PHASE
+    // -------------------------------------------------
+    if(marioRight  <= bodyLeft)  goto goon;
+    if(marioLeft   >= bodyRight) goto goon;
+    if(marioBottom <= bodyTop)   goto goon;
+    if(marioTop    >= bodyBottom)goto goon;
 
-  if(mario.x + MarioW() < gx) goto nextGoomba;
-  if(mario.x > gx + gw)       goto nextGoomba;
-  if(mario.y + MarioH() < goombas[i].y) goto nextGoomba;
-  if(mario.y > goombas[i].y + 32)       goto nextGoomba;
+    // -------------------------------------------------
+    // STOMP OVERLAP WIDTH
+    // -------------------------------------------------
+    I64 overlapLeft;
+    if(marioLeft  > stompLeft)
+     overlapLeft = marioLeft;
+    else
+     overlapLeft= stompLeft;
 
-  // --- stomp test (position + horizontal tolerance) ---
-  I64 goombaTop    = goombas[i].y;
-  I64 goombaCenter = goombas[i].x + 16;
-  I64 goombaLeft  = goombas[i].x;
-  I64 goombaRight = goombas[i].x + 32;
+    I64 overlapRight;
+    if(marioRight < stompRight)
+     overlapRight = marioRight;
+    else
+     overlapRight = stompRight;
+
+    I64 overlapWidth = overlapRight - overlapLeft;
 
-  // compute min(right edges)
-  I64 rightEdge = marioRight;
-  if(goombaRight < rightEdge)
-   rightEdge = goombaRight;
-  
-  // compute max(left edges)
-  I64 leftEdge = marioLeft;
-  if(goombaLeft > leftEdge)
-   leftEdge = goombaLeft;
-   
-  // overlap width
-  I64 overlap = rightEdge - leftEdge;
-  Bool fromAbove =
-   (marioPrevBottom <= goombaTop + 8) &&  // slightly more forgiving
-   (marioBottom     >= goombaTop)     &&  // crossed top
-   (overlap > 6);                         // require minimal foot contact
-  if(fromAbove){
-   // pick highest valid stomp
-   if(!stompTarget || goombas[i].y < stompTarget->y){
-    stompTarget = &goombas[i];
-   }
+    // -------------------------------------------------
+    // STOMP TEST
+    // -------------------------------------------------
+
+    // FIX 2: treat vy >= 0 as falling — catches the landing frame where vy == 0
+    Bool falling = mario.vy >= 0;
+
+    // FIX 3: loosen the crossing window significantly to survive fast falls.
+    // We allow marioPrevBottom up to stompTop+12 (was +2) so a fast-moving
+    // Mario who crosses multiple pixels per frame still registers.
+    // The broad phase already ensures marioBottom >= bodyTop, so we only
+    // need to confirm Mario came FROM above.
+    Bool crossedTop = (marioPrevBottom <= stompTop + 12) &&
+                      (marioBottom     >= stompTop);
+
+    // FIX 4: relax foot contact to 4px (was 6) to match the wider stomp zone
+    Bool footContact = overlapWidth >= 4;
+
+    Bool stomp = falling && crossedTop && footContact;
+
+    if(stomp){
+      if(!stompTarget || g->y < stompTarget->y)
+        stompTarget = g;
+      goto goon;
+    }
+
+    // -------------------------------------------------
+    // BODY HIT — only if we did NOT stomp
+    // -------------------------------------------------
+    DamageMario();
+    return;
+
+    goon:;
   }
 
-  nextGoomba:
-  ;
- }
-
- // --- resolve stomp first ---
- if(stompTarget){
-  stompTarget->crushed = 1;
-  stompTarget->animTimer = 20;
-  stompSoundActive=TRUE;
-  // stronger bounce, clears nearby enemies
-  mario.vy = -10;
-
-  return;
- }
-
- // --- otherwise any overlap = damage ---
- for(i = 0; i < MAX_GOOMBAS; i++){
-
-  if(!goombas[i].active || goombas[i].crushed)
-   goto resolveNext;
-
-  if(mario.x + MarioW() < goombas[i].x) goto resolveNext;
-  if(mario.x > goombas[i].x + 32)       goto resolveNext;
-  if(mario.y + MarioH() < goombas[i].y) goto resolveNext;
-  if(mario.y > goombas[i].y + 32)       goto resolveNext;
-
-  DamageMario();
-  return;
-  resolveNext:
- }
+  // -------------------------------------------------
+  // RESOLVE STOMP
+  // -------------------------------------------------
+  if(stompTarget){
+    stompTarget->crushed    = TRUE;
+    stompTarget->animTimer  = 20;
+    stompSoundActive        = TRUE;
+    mario.y  = stompTarget->y - MarioH();
+    mario.vy = -10;
+    return;
+  }
 }
+
 U0 HandleBlockHit(I64 tx, I64 ty)
 {
  if(tx < 0 || tx >= clvl->w || ty < 0 || ty >= clvl->h)

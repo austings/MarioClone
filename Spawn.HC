@@ -38,9 +38,10 @@ U0 SpawnMushroom(I64 x, I64 y)
 U0 SpawnGoomba(I64 tx, I64 ty)
 {
  I64 i;
- for(i = 0; i < MAX_GOOMBAS; i++){
+ for(i = 0; i < MAX_GOOMBAS; i++){
   if(!goombas[i].active){
    goombas[i].active = 1;
+   goombas[i].awake = FALSE;
    goombas[i].crushed = 0;
 
    goombas[i].x = tx * TILE_SIZE;
@@ -75,7 +76,7 @@ U0 SpawnBrickParticles(I64 tx, I64 ty)
   p->x = px + (i % 2) * 16;
   p->y = py + (i / 2) * 16;
 
-  // --- type: alternate ---
+  // --- type: alternate ---
   if(i < 2){
    p->type = 0; 
   }else{ 

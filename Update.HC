@@ -21,6 +21,20 @@ U0 UpdateGoombas()
  I64 i;
  for(i = 0; i < MAX_GOOMBAS; i++){
   if(!goombas[i].active) goto next;
+  I64 activationX = camX + SCREEN_W + 64;
+
+  // gravity
+  goombas[i].vy += GRAVITY;
+  if(goombas[i].vy > MAX_FALL)
+   goombas[i].vy = MAX_FALL;
+
+  //sleep
+  if(!goombas[i].awake){
+   if(goombas[i].x <= activationX){
+   goombas[i].awake = TRUE;
+   }
+   else goto next;
+  }
 
   // crushed state
   if(goombas[i].crushed){
@@ -31,10 +45,6 @@ U0 UpdateGoombas()
    goto next;
   }
 
-  // gravity
-  goombas[i].vy += GRAVITY;
-  if(goombas[i].vy > MAX_FALL)
-   goombas[i].vy = MAX_FALL;
 
   // horizontal move
   goombas[i].x += goombas[i].vx;
@@ -194,7 +204,11 @@ Bool CheckTileSpanX(I64 ty, I64 left, I64 right)
 }
 
 U0 UpdateMario(){
+
  globalTimer++;
+
+ mario.prevY = mario.y;
+
  if(mario.dying){
 
   mario.deathTimer--;
@@ -255,7 +269,6 @@ U0 UpdateMario(){
   
   return;
  }
-
  // --- Horizontal movement ---
  if(keyL){
   if(mario.vx > 0)
@@ -271,7 +284,6 @@ U0 UpdateMario(){
    mario.vx += TURN_ACCEL;
   else
    mario.vx += ACCEL;
-
   if(mario.vx > MAX_SPEED)
    mario.vx = MAX_SPEED;
  }
@@ -292,7 +304,6 @@ U0 UpdateMario(){
  }
  jumpHeld = keyJump;
 
-
  // --- Gravity ---
  mario.vy += GRAVITY;
  if(mario.vy > MAX_FALL) mario.vy = MAX_FALL;
@@ -312,7 +323,7 @@ U0 UpdateMario(){
 
  // --- vertical collision ---
  I64 left   = WorldToTile(mario.x);
- I64 right  = WorldToTile(mario.x + MarioW() -1);
+ I64 right  = WorldToTile(mario.x + MarioW() -1);
  I64 top    = WorldToTile(mario.y);
  I64 bottom = WorldToTile(mario.y + MarioH() -1);
  // moving right

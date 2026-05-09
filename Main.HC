@@ -33,7 +33,7 @@ U0 MarioMain()
 
  while(TRUE){
   while(input = GetMsg(&arg1,&arg2,
-     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
+     1<<MSG_KEY_DOWN | 1<<MSG_KEY_UP))
   { 
   switch(input)
   {
@@ -82,4 +82,4 @@ fs_end:
  SettingsPop;
 }
 
-MarioMain;$SY,3$
+MarioMain;$SY,3$

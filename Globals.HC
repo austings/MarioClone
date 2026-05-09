@@ -119,7 +119,7 @@ U8 transformSeq[7] = {
 };
 
 class Mario{
- F64 x, y;
+ F64 x, y, prevY;
  F64 vx, vy;
  U8 dir;
  U8 state;
@@ -139,7 +139,7 @@ class Mario{
 
 I64 MarioW()
 {
- return 24; // keep width same for now (simpler)
+ return 24; // keep width same for now (simpler)
 }
 I64 MarioH()
 {
@@ -165,7 +165,7 @@ class Mushroom {
 class Goomba {
  I64 x, y;
  I64 vx, vy;
- Bool active;
+ Bool active, awake;
  Bool crushed;
  I64 animTimer;
 } goombas[MAX_GOOMBAS];
@@ -181,7 +181,7 @@ class BrickParticle {
 U0 InitMario()
 {
  mario.x = 0;
- mario.y = 0;
+ mario.y = 0; mario.prevY=0;
  mario.vx = 0;
  mario.vy = 0;
  mario.dir = DIR_R;
